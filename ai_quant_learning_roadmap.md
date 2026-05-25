@@ -56,10 +56,20 @@ market-research-dashboard/
     app.py
     requirements.txt
     README.md
+    config/
+        settings.py
+        config.yaml
     data/
+        raw/
+        processed/
+        cache/
     features/
     pages/
+    utils/
+        __init__.py
     notebooks/
+    tests/
+        __init__.py
 ```
 
 Learn:
@@ -67,6 +77,13 @@ Learn:
 - virtual environments
 - Streamlit basics
 - modular project structure
+- configuration management
+
+Phase 完成标准：
+
+- 能运行 `streamlit run app.py` 看到空白页面
+- 项目结构完整
+- 虚拟环境配置正确
 
 ---
 
@@ -146,6 +163,44 @@ Important:
 
 Indicators are NOT magic prediction tools.
 
+Phase 完成标准：
+
+- Dashboard 能展示任意股票的上述指标
+- 指标计算模块独立可测试
+
+---
+
+# Phase 3.5 — Fundamental Data (Optional but Recommended)
+
+Goal:
+
+Add fundamental context alongside technical analysis.
+
+Implement:
+
+- PE / PB / EV-EBITDA
+- Revenue growth / Earnings growth
+- Sector / Industry classification
+- Market cap categories
+
+Libraries:
+
+```python
+yfinance (basic)
+# Future: Polygon, Alpha Vantage for richer data
+```
+
+Learn:
+
+- fundamental vs technical analysis
+- value investing basics
+- sector rotation logic
+
+Phase 完成标准：
+
+- 能展示股票的基本面快照
+- 能按行业/市值筛选股票
+
 ---
 
 # Phase 4 — Risk Analysis
@@ -167,6 +222,11 @@ Learn:
 - risk-adjusted return
 - diversification
 - downside risk
+
+Phase 完成标准：
+
+- 能计算并展示单只股票的全部风险指标
+- 能对比多只股票的风险特征
 
 ---
 
@@ -273,6 +333,16 @@ Features:
 - MA distance
 - volume change
 
+Feature Engineering (重要):
+
+- lagged features (滞后特征)
+- rolling statistics (滚动统计：mean, std, min, max)
+- feature selection methods
+- 防止数据泄露的训练流程：
+  1. 先划分时间范围
+  2. 再做特征工程
+  3. fit/transform 只在训练集上
+
 Models:
 
 - Logistic Regression
@@ -284,6 +354,18 @@ Learn:
 - walk-forward validation
 - time-series split
 - model drift
+
+Experiment Tracking:
+
+- 使用 MLflow 或 Weights & Biases 记录每次实验
+- 记录：参数、指标、特征重要性、模型版本
+- 避免”跑了很多但不知道哪个好”
+
+Phase 完成标准：
+
+- 能用历史数据训练模型并验证
+- 有完整的实验记录
+- 清楚知道当前最佳模型的性能
 
 ---
 
