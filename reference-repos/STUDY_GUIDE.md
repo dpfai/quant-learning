@@ -4,6 +4,114 @@ This document maps out which reference repositories to consult at different stag
 
 ---
 
+## Key Design Patterns from Reference Repos
+
+### 1. Data Provider Pattern (TradingAgents)
+
+**Location:** `reference-repos/TradingAgents/tradingagents/dataflows/`
+
+**Structure:**
+```
+dataflows/
+├── __init__.py
+├── interface.py           # Abstract interface
+├── y_finance.py          # Yahoo Finance provider
+├── alpha_vantage.py      # Alpha Vantage provider
+├── alpha_vantage_stock.py
+├── alpha_vantage_fundamentals.py
+├── fred.py               # FRED economic data
+├── stocktwits.py         # Social sentiment
+├── reddit.py             # Reddit sentiment
+└── polymarket.py         # Prediction markets
+```
+
+**When to use:** Adding new data sources (Phase 1.5, Phase 3.5)
+
+---
+
+### 2. Pydantic Data Models (ai-hedge-fund)
+
+**Location:** `reference-repos/ai-hedge-fund/src/data/models.py`
+
+**Purpose:** Type-safe data validation
+
+**Example:**
+```python
+from pydantic import BaseModel
+from datetime import date
+
+class Price(BaseModel):
+    ticker: str
+    date: date
+    open: float
+    high: float
+    low: float
+    close: float
+    volume: int
+
+class FinancialMetrics(BaseModel):
+    ticker: str
+    report_date: date
+    revenue: float
+    net_income: float
+    pe_ratio: float | None = None
+```
+
+**When to use:** Data validation, API responses, Phase 3.5 fundamentals
+
+---
+
+### 3. Agent Architecture (TradingAgents)
+
+**Location:** `reference-repos/TradingAgents/tradingagents/agents/`
+
+**Agent Types:**
+- `fundamentals_analyst.py` - Financial analysis
+- `sentiment_analyst.py` - News/social sentiment
+- `news_analyst.py` - News processing
+- `technical_analyst.py` - Technical indicators
+- `researcher_bull.py` / `researcher_bear.py` - Debate
+- `trader.py` - Decision making
+- `risk_manager.py` - Risk assessment
+- `portfolio_manager.py` - Final approval
+
+**When to use:** Phase 10+ AI agents
+
+---
+
+### 4. Feature Engineering Pipeline (Qlib)
+
+**Location:** `reference-repos/qlib/qlib/contrib/data/handler.py`
+
+**Key classes:** `Alpha158`, `Alpha360`
+
+**Features included in Alpha158:**
+- Price features (OPEN, HIGH, LOW, VWAP)
+- K-bar features
+- Rolling statistics
+- Time-based features
+
+**When to use:** Phase 9 ML/Prediction
+
+---
+
+### 5. Multi-Provider LLM Support (TradingAgents)
+
+**Location:** `reference-repos/TradingAgents/tradingagents/llm_clients/`
+
+**Supported providers:**
+- OpenAI (GPT)
+- Anthropic (Claude)
+- Google (Gemini)
+- xAI (Grok)
+- DeepSeek
+- Qwen
+- Ollama (local)
+
+**When to use:** Phase 10+ AI integration
+
+---
+
 ## Project Phases & Reference Repositories
 
 ### Phase 1: Data Infrastructure
@@ -14,14 +122,22 @@ This document maps out which reference repositories to consult at different stag
 - Data normalization and storage
 - Real-time data fetching
 
-**Primary Reference:** `OpenBB/`
-- Study `openbb/providers/` for data provider patterns
-- Check `openbb/core/` for data handling architecture
-- Example: How to normalize different data sources into unified format
+**Primary Reference:** `TradingAgents/tradingagents/dataflows/`
+- Study `interface.py` for abstract provider pattern
+- Check `y_finance.py` for Yahoo Finance implementation
+- Study `alpha_vantage_*.py` for multi-source pattern
 
 **Secondary Reference:** `Qlib/`
 - Study `qlib/data/` for efficient data storage
 - Check `scripts/data_collector/` for data crawling patterns
+
+**Specific files to study:**
+| File | Purpose |
+|------|---------|
+| `dataflows/interface.py` | Abstract data provider interface |
+| `dataflows/y_finance.py` | YFinance implementation with caching |
+| `dataflows/alpha_vantage_stock.py` | Alternative data source example |
+| `dataflows/utils.py` | Common utilities |
 
 ---
 
@@ -171,7 +287,9 @@ This document maps out which reference repositories to consult at different stag
 
 | Task | Go To |
 |------|-------|
-| Add new data source | `OpenBB/openbb/providers/` |
+| Add new data source | `TradingAgents/tradingagents/dataflows/interface.py` |
+| Implement data provider | `TradingAgents/tradingagents/dataflows/y_finance.py` |
+| Data model validation | `ai-hedge-fund/src/data/models.py` |
 | Build a new agent | `TradingAgents/tradingagents/agents/` |
 | Design agent workflow | `TradingAgents/tradingagents/graph/` |
 | Create technical indicators | `Qlib/qlib/contrib/data/handler.py` |
@@ -181,6 +299,8 @@ This document maps out which reference repositories to consult at different stag
 | LLM integration | `TradingAgents/tradingagents/llm/` |
 | Risk management | `ai-hedge-fund/src/agents/risk_manager.py` |
 | Fine-tune financial LLM | `FinGPT/fingpt/` |
+| Feature engineering | `Qlib/qlib/contrib/data/handler.py` (Alpha158) |
+| Cache implementation | `ai-hedge-fund/src/data/cache.py` |
 
 ---
 
@@ -216,3 +336,57 @@ When you're ready to run these repos, you'll need:
 - Keep this guide updated as the project progresses
 - Add your own notes and learnings in this file
 - When stuck on a specific problem, check the relevant reference repo first
+
+---
+
+## Additional Resources by Repo
+
+### TradingAgents - Key Files
+
+| File | Purpose |
+|------|---------|
+| `tradingagents/dataflows/interface.py` | Data provider abstract interface |
+| `tradingagents/dataflows/y_finance.py` | YFinance implementation |
+| `tradingagents/agents/*.py` | Individual agent implementations |
+| `tradingagents/graph/trading_graph.py` | Multi-agent orchestration |
+| `tradingagents/llm_clients/` | Multi-provider LLM support |
+| `tradingagents/default_config.py` | Configuration patterns |
+
+### ai-hedge-fund - Key Files
+
+| File | Purpose |
+|------|---------|
+| `src/data/models.py` | Pydantic data models |
+| `src/data/cache.py` | Caching implementation |
+| `src/api.py` | Data API integration |
+| `src/agents/risk_manager.py` | Risk metrics calculation |
+| `src/agents/portfolio_manager.py` | Portfolio decisions |
+| `src/backtester.py` | Backtesting framework |
+| `app/` | Streamlit web application |
+
+### FinGPT - Key Files
+
+| File | Purpose |
+|------|---------|
+| `fingpt/FinGPT_Sentiment_Analysis_v3/` | Sentiment analysis models |
+| `fingpt/FinGPT_Forecaster/` | Stock prediction model |
+| `fingpt/FinGPT_RAG/` | RAG implementation |
+| `fingpt/FinGPT_Benchmark/` | Instruction tuning benchmark |
+
+### Qlib - Key Files
+
+| File | Purpose |
+|------|---------|
+| `qlib/contrib/data/handler.py` | Alpha158/Alpha360 features |
+| `qlib/contrib/model/` | Model implementations |
+| `qlib/contrib/strategy/` | Trading strategies |
+| `qlib/contrib/report/` | Analysis reports |
+| `examples/benchmarks/` | Complete workflow examples |
+| `examples/rl_order_execution/` | RL examples |
+
+### OpenBB - Key Files
+
+| File | Purpose |
+|------|---------|
+| `openbb/` | Python SDK |
+| `openbb/providers/` | Data provider implementations |
