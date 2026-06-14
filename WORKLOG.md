@@ -1,5 +1,65 @@
 # WORKLOG
 
+## Session: 2026-06-14 00:22 PDT
+
+### Agent: Codex
+
+**完成：**
+- 检查 Phase 1.5 发布范围、当前分支和 GitHub remote。
+- 确认工作区仅包含 Phase 1.5 相关变更。
+
+**文件变更：**
+- 更新 `WORKLOG.md`
+
+**验证：**
+- `git diff --check` — 通过。
+- `gh --version` — GitHub CLI 2.92.0 已安装。
+- `gh auth status` — 失败，`dpfai` 的 GitHub token 已失效。
+
+**阻塞或注意事项：**
+- GitHub authentication 阻塞 commit/push/PR 发布流程。
+- 需要先运行 `gh auth login -h github.com` 重新认证。
+
+**下一步：**
+- 认证成功后创建 `codex/phase-1-5-data-provider-refactor`，提交并 push Phase 1.5 变更，然后创建 draft PR。
+
+## Session: 2026-06-14 00:19 PDT
+
+### Agent: Codex
+
+**完成：**
+- 完成 Phase 1.5 — Data Layer Refactor。
+- 新增 `DataProvider` 抽象接口和 `YFinanceProvider` 实现。
+- 将 yfinance 下载、ticker alias、DataFrame 清理和 parquet 缓存逻辑从 `DataLoader` 迁移到 provider。
+- 将 `DataLoader` 重构为统一入口，保留原有 `download`、`download_batch`、`is_cache_valid`、`clear_cache` 和 `use_cache=False` 行为。
+- 新增 start/end date 下载支持，并为日期范围使用独立缓存键。
+- 扩展 data loader 测试，覆盖缓存复用、绕过缓存、批量下载、VIX alias、日期参数、provider 选择和未知 provider。
+- 新增 `pytest.ini`，避免 pytest 收集 `reference-repos/` 内第三方项目测试。
+
+**文件变更：**
+- 新增 `utils/data_providers/__init__.py`
+- 新增 `utils/data_providers/base.py`
+- 新增 `utils/data_providers/yfinance_provider.py`
+- 重构 `utils/data_loader.py`
+- 更新 `tests/test_data_loader.py`
+- 新增 `pytest.ini`
+- 更新 `WORKLOG.md`
+
+**验证：**
+- `venv/bin/python -m py_compile app.py config/settings.py utils/data_loader.py utils/data_providers/base.py utils/data_providers/yfinance_provider.py` — 通过。
+- `venv/bin/python -m pytest tests/test_data_loader.py -q` — 7 passed。
+- `venv/bin/python -m pytest -q` — 13 passed。
+- `venv/bin/streamlit run app.py --server.headless true --server.port 8501` — 启动成功。
+- `curl -I http://localhost:8501` — HTTP 200 OK。
+- `git diff --check` — 通过。
+
+**阻塞或注意事项：**
+- 无阻塞。
+- 当前仅注册 `yfinance` provider；后续 provider 可通过 `DataLoader._get_provider()` 接入。
+
+**下一步：**
+- 按 roadmap 继续 Phase 4-5 — 风险分析和市场概览。
+
 ## Session: 2026-06-14 (Claude)
 
 ### Agent: Claude
@@ -207,12 +267,12 @@ class DataLoader:
 
 ### 完成标准
 
-- [ ] `utils/data_providers/base.py` 创建并定义 `DataProvider` 抽象类
-- [ ] `utils/data_providers/yfinance_provider.py` 实现具体 provider
-- [ ] `utils/data_loader.py` 重构为统一入口
-- [ ] 所有现有功能保持不变（向后兼容）
-- [ ] `pytest tests/test_data_loader.py` 通过
-- [ ] `streamlit run app.py` 正常运行
+- [x] `utils/data_providers/base.py` 创建并定义 `DataProvider` 抽象类
+- [x] `utils/data_providers/yfinance_provider.py` 实现具体 provider
+- [x] `utils/data_loader.py` 重构为统一入口
+- [x] 所有现有功能保持不变（向后兼容）
+- [x] `pytest tests/test_data_loader.py` 通过
+- [x] `streamlit run app.py` 正常运行
 
 ### 参考文件
 
