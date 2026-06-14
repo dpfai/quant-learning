@@ -34,6 +34,8 @@
 - `venv/bin/streamlit run app.py --server.headless true --server.port 8501` — 启动成功。
 - `curl -I http://localhost:8501` — HTTP 200 OK。
 - `git diff --check` — 通过。
+- Commit `c81d468` — `Complete phases 6-12 research features`。
+- `git push origin main` — 成功。
 
 **阻塞或注意事项：**
 - 无功能阻塞。
@@ -41,7 +43,7 @@
 - ML 输出和回测结果仅用于学习研究，不是预测保证或投资建议。
 
 **下一步：**
-- 审阅并提交 Phase 6-12 变更；后续优先增加页面级 Streamlit 测试和更严格的模型校准/回测方法。
+- Phase 6-12 已完成并推送；后续优先增加页面级 Streamlit 测试和更严格的模型校准/回测方法。
 
 ## Session: 2026-06-14 02:00 PDT
 
