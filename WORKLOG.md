@@ -1,5 +1,1107 @@
 # WORKLOG
 
+## Session: 2026-06-14 02:00 PDT
+
+### Agent: Claude
+
+**完成：**
+- 编写 Phase 6-12 完整任务计划
+- 更新 STUDY_GUIDE.md 添加详细的 Agent 架构文档
+- 提交并推送 Phase 4-5 变更
+
+**下一步：**
+- Codex 按顺序执行 Phase 6-12
+
+---
+
+# 📦 Phase 6-12 Complete Task Plan (Codex)
+
+以下是 Phase 6-12 的完整任务计划，按顺序执行。
+
+---
+
+## Phase 6 — Stock Detail Enhancement
+
+**目标：** 完善个股分析页面，添加相对表现分析
+
+### 任务
+
+#### 1. 创建 `utils/relative_performance.py`
+
+```python
+"""
+相对表现计算模块
+"""
+import pandas as pd
+from typing import Dict, Optional
+
+
+def calculate_relative_performance(
+    stock_prices: pd.Series,
+    benchmark_prices: pd.Series,
+    periods: list[int] = [5, 20, 60, 252]
+) -> Dict[str, float]:
+    """
+    计算股票相对于基准的表现
+    
+    Returns:
+        {
+            'stock_5d': float,      # 股票5日收益率
+            'benchmark_5d': float,  # 基准5日收益率
+            'alpha_5d': float,      # 超额收益
+            'stock_20d': float,
+            'benchmark_20d': float,
+            'alpha_20d': float,
+            ...
+            'stock_ytd': float,
+            'benchmark_ytd': float,
+            'alpha_ytd': float,
+        }
+    """
+    pass
+
+
+def calculate_rolling_alpha(
+    stock_returns: pd.Series,
+    benchmark_returns: pd.Series,
+    window: int = 20
+) -> pd.Series:
+    """计算滚动 Alpha"""
+    pass
+
+
+def calculate_information_ratio(
+    stock_returns: pd.Series,
+    benchmark_returns: pd.Series
+) -> float:
+    """计算信息比率"""
+    pass
+
+
+def calculate_tracking_error(
+    stock_returns: pd.Series,
+    benchmark_returns: pd.Series
+) -> float:
+    """计算跟踪误差"""
+    pass
+```
+
+#### 2. 更新 `pages/2_Stock_Detail.py`
+
+添加功能：
+- 多时间框架收益表格（5d, 20d, 60d, YTD）
+- 相对表现 vs SPY（超额收益）
+- Alpha 信息比率
+- 与板块 ETF 对比（可选）
+
+```python
+# 相对表现面板
+st.subheader("📊 Relative Performance vs SPY")
+
+from utils.relative_performance import calculate_relative_performance
+
+rel_perf = calculate_relative_performance(df["Adj Close"], spy_data["Adj Close"])
+
+col1, col2, col3, col4 = st.columns(4)
+with col1:
+    st.metric("5d Return", f"{rel_perf['stock_5d']*100:.1f}%", f"α: {rel_perf['alpha_5d']*100:.1f}%")
+with col2:
+    st.metric("20d Return", f"{rel_perf['stock_20d']*100:.1f}%", f"α: {rel_perf['alpha_20d']*100:.1f}%")
+# ... 继续
+```
+
+#### 3. 创建 `tests/test_relative_performance.py`
+
+#### 完成标准
+
+- [ ] `utils/relative_performance.py` 创建
+- [ ] `pages/2_Stock_Detail.py` 添加相对表现面板
+- [ ] 测试通过
+
+---
+
+## Phase 7 — Watchlist System
+
+**目标：** 实现多股票追踪和排名系统
+
+### 任务
+
+#### 1. 创建 `utils/watchlist_manager.py`
+
+```python
+"""
+Watchlist 管理模块
+"""
+import json
+from pathlib import Path
+from typing import List, Dict, Optional
+import pandas as pd
+
+
+class WatchlistManager:
+    """管理用户 watchlist"""
+    
+    DEFAULT_WATCHLIST = {
+        "Tech Growth": ["AAPL", "MSFT", "GOOGL", "AMZN", "NVDA", "META"],
+        "ETFs": ["SPY", "QQQ", "DIA", "IWM"],
+        "Sectors": ["XLK", "XLF", "XLV", "XLE", "XLY"]
+    }
+    
+    def __init__(self, storage_path: str = "data/watchlists.json"):
+        self.storage_path = Path(storage_path)
+        self.storage_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    def get_watchlist(self, name: str) -> List[str]:
+        """获取指定 watchlist"""
+        pass
+    
+    def add_ticker(self, watchlist_name: str, ticker: str) -> None:
+        """添加股票到 watchlist"""
+        pass
+    
+    def remove_ticker(self, watchlist_name: str, ticker: str) -> None:
+        """从 watchlist 移除股票"""
+        pass
+    
+    def create_watchlist(self, name: str, tickers: List[str] = None) -> None:
+        """创建新 watchlist"""
+        pass
+    
+    def delete_watchlist(self, name: str) -> None:
+        """删除 watchlist"""
+        pass
+    
+    def list_watchlists(self) -> List[str]:
+        """列出所有 watchlist"""
+        pass
+```
+
+#### 2. 创建 `pages/3_Watchlist.py`
+
+```python
+"""
+Watchlist 页面
+"""
+import streamlit as st
+import pandas as pd
+from utils.watchlist_manager import WatchlistManager
+from utils.data_loader import DataLoader
+from features.risk_metrics import calculate_all_risk_metrics
+from utils.relative_performance import calculate_relative_performance
+
+st.title("📋 Watchlist")
+
+manager = WatchlistManager()
+loader = DataLoader()
+
+# 侧边栏：选择 watchlist
+watchlists = manager.list_watchlists()
+selected_watchlist = st.selectbox("Select Watchlist", watchlists)
+
+# 显示和编辑 watchlist
+tickers = manager.get_watchlist(selected_watchlist)
+new_ticker = st.text_input("Add Ticker", key="new_ticker")
+if st.button("Add") and new_ticker:
+    manager.add_ticker(selected_watchlist, new_ticker.upper())
+    st.rerun()
+
+# 批量获取数据并计算指标
+@st.cache_data
+def get_watchlist_metrics(tickers: list) -> pd.DataFrame:
+    results = []
+    spy_data = loader.download("SPY")
+    
+    for ticker in tickers:
+        try:
+            df = loader.download(ticker)
+            metrics = calculate_all_risk_metrics(df["Adj Close"], spy_data["Adj Close"])
+            rel_perf = calculate_relative_performance(df["Adj Close"], spy_data["Adj Close"])
+            
+            results.append({
+                "Ticker": ticker,
+                "Price": df["Close"].iloc[-1],
+                "5d": rel_perf["stock_5d"],
+                "20d": rel_perf["stock_20d"],
+                "60d": rel_perf["stock_60d"],
+                "YTD": rel_perf["stock_ytd"],
+                "Volatility": metrics["ann_volatility"],
+                "Max DD": metrics["max_drawdown"],
+                "Sharpe": metrics["sharpe_ratio"],
+                "Alpha 20d": rel_perf["alpha_20d"],
+            })
+        except Exception as e:
+            st.warning(f"Failed to load {ticker}: {e}")
+    
+    return pd.DataFrame(results)
+
+df = get_watchlist_metrics(tickers)
+
+# 排序和显示
+sort_col = st.selectbox("Sort by", df.columns[1:], index=3)
+df_sorted = df.sort_values(sort_col, ascending=False)
+st.dataframe(df_sorted.style.format({
+    "Price": "${:.2f}",
+    "5d": "{:.1%}",
+    "20d": "{:.1%}",
+    "60d": "{:.1%}",
+    "YTD": "{:.1%}",
+    "Volatility": "{:.1%}",
+    "Max DD": "{:.1%}",
+    "Sharpe": "{:.2f}",
+    "Alpha 20d": "{:.1%}",
+}), use_container_width=True)
+
+# 风险收益散点图
+st.subheader("Risk-Return Scatter")
+import plotly.express as px
+fig = px.scatter(df, x="Volatility", y="YTD", text="Ticker",
+                 hover_data=["Sharpe", "Max DD"])
+fig.update_traces(textposition="top center")
+st.plotly_chart(fig, use_container_width=True)
+```
+
+#### 3. 创建 `tests/test_watchlist_manager.py`
+
+#### 完成标准
+
+- [ ] `utils/watchlist_manager.py` 创建
+- [ ] `pages/3_Watchlist.py` 创建
+- [ ] 支持添加/删除股票
+- [ ] 显示多时间框架收益
+- [ ] 风险收益散点图
+- [ ] 测试通过
+
+---
+
+## Phase 8 — Backtesting
+
+**目标：** 实现简单回测框架
+
+### 任务
+
+#### 1. 创建目录结构
+
+```
+backtest/
+├── __init__.py
+├── engine.py           # 回测引擎
+├── strategies.py       # 策略定义
+├── metrics.py          # 绩效指标
+└── signals.py          # 信号生成
+```
+
+#### 2. `backtest/strategies.py`
+
+```python
+"""
+交易策略定义
+"""
+import pandas as pd
+import numpy as np
+from typing import Dict, Optional
+
+
+def ma_crossover_signal(
+    df: pd.DataFrame,
+    fast_period: int = 20,
+    slow_period: int = 50
+) -> pd.Series:
+    """
+    MA 交叉策略信号
+    
+    Returns:
+        Series with values: 1 (long), 0 (flat), -1 (short)
+    """
+    fast_ma = df["Close"].rolling(fast_period).mean()
+    slow_ma = df["Close"].rolling(slow_period).mean()
+    
+    signal = pd.Series(0, index=df.index)
+    signal[fast_ma > slow_ma] = 1
+    signal[fast_ma < slow_ma] = -1
+    
+    return signal
+
+
+def rsi_mean_reversion_signal(
+    df: pd.DataFrame,
+    rsi_period: int = 14,
+    oversold: float = 30,
+    overbought: float = 70
+) -> pd.Series:
+    """
+    RSI 均值回归策略信号
+    
+    当 RSI < oversold 时买入
+    当 RSI > overbought 时卖出
+    """
+    # 计算 RSI (复用 features/indicators.py)
+    delta = df["Close"].diff()
+    gain = delta.clip(lower=0)
+    loss = -delta.clip(upper=0)
+    
+    avg_gain = gain.ewm(alpha=1/rsi_period, min_periods=rsi_period).mean()
+    avg_loss = loss.ewm(alpha=1/rsi_period, min_periods=rsi_period).mean()
+    
+    rs = avg_gain / avg_loss
+    rsi = 100 - (100 / (1 + rs))
+    
+    signal = pd.Series(0, index=df.index)
+    signal[rsi < oversold] = 1
+    signal[rsi > overbought] = -1
+    
+    return signal
+
+
+def bollinger_band_signal(
+    df: pd.DataFrame,
+    period: int = 20,
+    std_dev: float = 2
+) -> pd.Series:
+    """
+    布林带策略信号
+    """
+    ma = df["Close"].rolling(period).mean()
+    std = df["Close"].rolling(period).std()
+    upper = ma + std_dev * std
+    lower = ma - std_dev * std
+    
+    signal = pd.Series(0, index=df.index)
+    signal[df["Close"] < lower] = 1   # 价格触及下轨，买入
+    signal[df["Close"] > upper] = -1  # 价格触及上轨，卖出
+    
+    return signal
+```
+
+#### 3. `backtest/engine.py`
+
+```python
+"""
+回测引擎
+"""
+import pandas as pd
+import numpy as np
+from typing import Callable, Dict, Optional
+from backtest.strategies import ma_crossover_signal, rsi_mean_reversion_signal
+
+
+class BacktestEngine:
+    """简单回测引擎"""
+    
+    def __init__(
+        self,
+        commission: float = 0.001,  # 0.1% 交易成本
+        slippage: float = 0.0005,   # 0.05% 滑点
+    ):
+        self.commission = commission
+        self.slippage = slippage
+    
+    def run(
+        self,
+        prices: pd.Series,
+        signals: pd.Series,
+        initial_capital: float = 100000,
+    ) -> Dict:
+        """
+        运行回测
+        
+        Args:
+            prices: 收盘价序列
+            signals: 交易信号 (1=long, 0=flat, -1=short)
+            initial_capital: 初始资金
+            
+        Returns:
+            {
+                'equity_curve': pd.Series,
+                'trades': pd.DataFrame,
+                'metrics': Dict,
+            }
+        """
+        # 实现回测逻辑
+        # 注意避免 look-ahead bias
+        pass
+    
+    def calculate_metrics(self, equity_curve: pd.Series) -> Dict:
+        """计算回测绩效指标"""
+        returns = equity_curve.pct_change().dropna()
+        
+        return {
+            'total_return': (equity_curve.iloc[-1] / equity_curve.iloc[0]) - 1,
+            'annualized_return': returns.mean() * 252,
+            'annualized_volatility': returns.std() * np.sqrt(252),
+            'sharpe_ratio': (returns.mean() * 252) / (returns.std() * np.sqrt(252)),
+            'max_drawdown': self._max_drawdown(equity_curve),
+            'win_rate': self._win_rate(returns),
+            'profit_factor': self._profit_factor(returns),
+            'num_trades': self._count_trades(signals),
+        }
+```
+
+#### 4. `pages/4_Backtest.py`
+
+```python
+"""
+回测页面
+"""
+import streamlit as st
+from utils.data_loader import DataLoader
+from backtest.engine import BacktestEngine
+from backtest.strategies import ma_crossover_signal, rsi_mean_reversion_signal, bollinger_band_signal
+
+st.title("📈 Backtesting")
+
+# 输入
+ticker = st.text_input("Ticker", "SPY")
+strategy = st.selectbox("Strategy", ["MA Crossover", "RSI Mean Reversion", "Bollinger Band"])
+fast_period = st.slider("Fast Period", 5, 50, 20)
+slow_period = st.slider("Slow Period", 20, 200, 50)
+
+# 运行回测
+loader = DataLoader()
+df = loader.download(ticker)
+
+engine = BacktestEngine(commission=0.001)
+
+if strategy == "MA Crossover":
+    signals = ma_crossover_signal(df, fast_period, slow_period)
+elif strategy == "RSI Mean Reversion":
+    signals = rsi_mean_reversion_signal(df)
+else:
+    signals = bollinger_band_signal(df)
+
+result = engine.run(df["Close"], signals)
+
+# 显示结果
+col1, col2, col3, col4 = st.columns(4)
+with col1:
+    st.metric("Total Return", f"{result['metrics']['total_return']*100:.1f}%")
+with col2:
+    st.metric("Sharpe Ratio", f"{result['metrics']['sharpe_ratio']:.2f}")
+with col3:
+    st.metric("Max Drawdown", f"{result['metrics']['max_drawdown']*100:.1f}%")
+with col4:
+    st.metric("Win Rate", f"{result['metrics']['win_rate']*100:.1f}%")
+
+# Equity curve
+import plotly.graph_objects as go
+fig = go.Figure()
+fig.add_trace(go.Scatter(x=result['equity_curve'].index, y=result['equity_curve'], name="Equity"))
+st.plotly_chart(fig, use_container_width=True)
+```
+
+#### 完成标准
+
+- [ ] `backtest/` 目录创建
+- [ ] 3个策略实现
+- [ ] 回测引擎实现（考虑交易成本、避免 look-ahead bias）
+- [ ] `pages/4_Backtest.py` 创建
+- [ ] 测试通过
+
+---
+
+## Phase 9 — Prediction System
+
+**目标：** 实现基础 ML 预测功能
+
+### 任务
+
+#### 1. 创建目录结构
+
+```
+ml/
+├── __init__.py
+├── features.py         # 特征工程
+├── models.py           # 模型定义
+├── validation.py       # 验证方法
+└── experiments.py      # 实验管理
+```
+
+#### 2. `ml/features.py`
+
+```python
+"""
+特征工程模块
+参考 reference-repos/qlib/qlib/contrib/data/handler.py (Alpha158)
+"""
+import pandas as pd
+import numpy as np
+from typing import List, Tuple
+
+
+def create_price_features(df: pd.DataFrame, windows: List[int] = [5, 10, 20, 60]) -> pd.DataFrame:
+    """创建价格相关特征"""
+    features = pd.DataFrame(index=df.index)
+    
+    for w in windows:
+        # 收益率
+        features[f'return_{w}d'] = df['Close'].pct_change(w)
+        
+        # 波动率
+        features[f'volatility_{w}d'] = df['Close'].pct_change().rolling(w).std()
+        
+        # MA distance
+        features[f'ma_dist_{w}d'] = (df['Close'] - df['Close'].rolling(w).mean()) / df['Close'].rolling(w).mean()
+        
+        # High/Low ratio
+        features[f'high_low_ratio_{w}d'] = df['High'].rolling(w).max() / df['Low'].rolling(w).min()
+        
+        # Volume change
+        features[f'volume_change_{w}d'] = df['Volume'].pct_change(w)
+    
+    return features
+
+
+def create_technical_features(df: pd.DataFrame) -> pd.DataFrame:
+    """创建技术指标特征"""
+    features = pd.DataFrame(index=df.index)
+    
+    # RSI
+    delta = df['Close'].diff()
+    gain = delta.clip(lower=0)
+    loss = -delta.clip(upper=0)
+    avg_gain = gain.ewm(alpha=1/14, min_periods=14).mean()
+    avg_loss = loss.ewm(alpha=1/14, min_periods=14).mean()
+    features['rsi_14'] = 100 - (100 / (1 + avg_gain / avg_loss))
+    
+    # MACD
+    ema_12 = df['Close'].ewm(span=12).mean()
+    ema_26 = df['Close'].ewm(span=26).mean()
+    features['macd'] = ema_12 - ema_26
+    features['macd_signal'] = features['macd'].ewm(span=9).mean()
+    features['macd_hist'] = features['macd'] - features['macd_signal']
+    
+    # Bollinger Band position
+    ma_20 = df['Close'].rolling(20).mean()
+    std_20 = df['Close'].rolling(20).std()
+    features['bb_position'] = (df['Close'] - ma_20) / (2 * std_20)
+    
+    # ATR ratio
+    high_low = df['High'] - df['Low']
+    atr = high_low.ewm(alpha=1/14).mean()
+    features['atr_ratio'] = atr / df['Close']
+    
+    return features
+
+
+def create_target(
+    df: pd.DataFrame,
+    forward_days: int = 5,
+    target_type: str = 'return'
+) -> pd.Series:
+    """
+    创建目标变量
+    
+    target_type:
+        'return': 未来N日收益率
+        'binary': 涨/跌 (1/0)
+        'bucket': 分位数 (0=bottom 20%, 4=top 20%)
+    """
+    future_return = df['Close'].shift(-forward_days) / df['Close'] - 1
+    
+    if target_type == 'return':
+        return future_return
+    elif target_type == 'binary':
+        return (future_return > 0).astype(int)
+    elif target_type == 'bucket':
+        return pd.qcut(future_return, 5, labels=False, duplicates='drop')
+    
+    return future_return
+
+
+def prepare_ml_data(
+    df: pd.DataFrame,
+    forward_days: int = 5,
+    test_ratio: float = 0.2
+) -> Tuple[pd.DataFrame, pd.Series, pd.DataFrame, pd.Series]:
+    """
+    准备 ML 数据（防止数据泄露）
+    
+    时间序列划分：训练集在前，测试集在后
+    """
+    # 创建特征
+    price_features = create_price_features(df)
+    tech_features = create_technical_features(df)
+    X = pd.concat([price_features, tech_features], axis=1)
+    
+    # 创建目标
+    y = create_target(df, forward_days)
+    
+    # 移除 NaN
+    valid_idx = ~(X.isna().any(axis=1) | y.isna())
+    X = X[valid_idx]
+    y = y[valid_idx]
+    
+    # 时间序列划分（不能用 random split）
+    split_idx = int(len(X) * (1 - test_ratio))
+    X_train, X_test = X.iloc[:split_idx], X.iloc[split_idx:]
+    y_train, y_test = y.iloc[:split_idx], y.iloc[split_idx:]
+    
+    return X_train, X_test, y_train, y_test
+```
+
+#### 3. `ml/models.py`
+
+```python
+"""
+模型定义
+"""
+from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
+from sklearn.preprocessing import StandardScaler
+from sklearn.pipeline import Pipeline
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
+import pandas as pd
+import numpy as np
+
+
+def get_model(model_type: str = 'random_forest'):
+    """获取模型"""
+    if model_type == 'logistic':
+        return Pipeline([
+            ('scaler', StandardScaler()),
+            ('model', LogisticRegression(max_iter=1000))
+        ])
+    elif model_type == 'random_forest':
+        return RandomForestClassifier(n_estimators=100, max_depth=10, random_state=42)
+    elif model_type == 'gradient_boost':
+        return GradientBoostingClassifier(n_estimators=100, max_depth=5, random_state=42)
+    
+    raise ValueError(f"Unknown model type: {model_type}")
+
+
+def evaluate_model(model, X_test, y_test) -> dict:
+    """评估模型"""
+    y_pred = model.predict(X_test)
+    y_prob = model.predict_proba(X_test)[:, 1] if hasattr(model, 'predict_proba') else None
+    
+    return {
+        'accuracy': accuracy_score(y_test, y_pred),
+        'precision': precision_score(y_test, y_pred, zero_division=0),
+        'recall': recall_score(y_test, y_pred, zero_division=0),
+        'f1': f1_score(y_test, y_pred, zero_division=0),
+    }
+
+
+def get_feature_importance(model, feature_names: list) -> pd.DataFrame:
+    """获取特征重要性"""
+    if hasattr(model, 'feature_importances_'):
+        importance = model.feature_importances_
+    elif hasattr(model, 'named_steps') and 'model' in model.named_steps:
+        importance = model.named_steps['model'].coef_[0]
+    else:
+        return None
+    
+    return pd.DataFrame({
+        'feature': feature_names,
+        'importance': np.abs(importance)
+    }).sort_values('importance', ascending=False)
+```
+
+#### 4. `pages/5_Prediction.py`
+
+```python
+"""
+预测页面
+"""
+import streamlit as st
+from utils.data_loader import DataLoader
+from ml.features import prepare_ml_data
+from ml.models import get_model, evaluate_model, get_feature_importance
+
+st.title("🔮 Prediction")
+
+# 输入
+ticker = st.text_input("Ticker", "SPY")
+forward_days = st.slider("Prediction Horizon (days)", 1, 20, 5)
+model_type = st.selectbox("Model", ["random_forest", "logistic", "gradient_boost"])
+
+# 加载数据
+loader = DataLoader()
+df = loader.download(ticker, period="5y")
+
+# 准备 ML 数据
+X_train, X_test, y_train, y_test = prepare_ml_data(df, forward_days)
+
+st.write(f"Training samples: {len(X_train)}, Test samples: {len(X_test)}")
+
+# 训练模型
+model = get_model(model_type)
+model.fit(X_train, y_train)
+
+# 评估
+metrics = evaluate_model(model, X_test, y_test)
+
+col1, col2, col3, col4 = st.columns(4)
+with col1:
+    st.metric("Accuracy", f"{metrics['accuracy']:.1%}")
+with col2:
+    st.metric("Precision", f"{metrics['precision']:.1%}")
+with col3:
+    st.metric("Recall", f"{metrics['recall']:.1%}")
+with col4:
+    st.metric("F1 Score", f"{metrics['f1']:.1%}")
+
+# 特征重要性
+st.subheader("Feature Importance")
+importance_df = get_feature_importance(model, X_train.columns.tolist())
+if importance_df is not None:
+    st.bar_chart(importance_df.set_index('feature')['importance'])
+
+# 最新预测
+st.subheader("Latest Prediction")
+latest_features = X_test.iloc[[-1]]
+prediction = model.predict(latest_features)[0]
+probability = model.predict_proba(latest_features)[0]
+
+if prediction == 1:
+    st.success(f"📈 Predicted UP (probability: {probability[1]:.1%})")
+else:
+    st.error(f"📉 Predicted DOWN (probability: {probability[0]:.1%})")
+```
+
+#### 完成标准
+
+- [ ] `ml/` 目录创建
+- [ ] 特征工程实现（防止数据泄露）
+- [ ] 模型训练和评估
+- [ ] `pages/5_Prediction.py` 创建
+- [ ] 测试通过
+
+---
+
+## Phase 10 — AI Summary System
+
+**目标：** 使用 LLM 生成市场分析摘要
+
+### 任务
+
+#### 1. 创建 `agents/` 目录
+
+```
+agents/
+├── __init__.py
+├── llm_client.py       # LLM 客户端
+├── market_summarizer.py # 市场摘要生成
+└── prompts.py          # Prompt 模板
+```
+
+#### 2. `agents/llm_client.py`
+
+```python
+"""
+LLM 客户端
+参考 reference-repos/TradingAgents/tradingagents/llm_clients/
+"""
+import os
+from typing import Optional
+import openai
+
+
+class LLMClient:
+    """统一 LLM 客户端"""
+    
+    def __init__(self, provider: str = "openai", model: str = "gpt-4o-mini"):
+        self.provider = provider
+        self.model = model
+        
+        if provider == "openai":
+            self.client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+        # 可扩展其他 provider
+    
+    def generate(self, prompt: str, system_prompt: str = None) -> str:
+        """生成回复"""
+        messages = []
+        if system_prompt:
+            messages.append({"role": "system", "content": system_prompt})
+        messages.append({"role": "user", "content": prompt})
+        
+        if self.provider == "openai":
+            response = self.client.chat.completions.create(
+                model=self.model,
+                messages=messages,
+                temperature=0.7,
+            )
+            return response.choices[0].message.content
+        
+        raise NotImplementedError(f"Provider {self.provider} not implemented")
+```
+
+#### 3. `agents/prompts.py`
+
+```python
+"""
+Prompt 模板
+"""
+
+MARKET_SUMMARY_SYSTEM = """You are a professional market analyst. 
+Provide concise, objective market analysis without giving investment advice.
+Focus on facts, data, and logical reasoning.
+Always include appropriate disclaimers."""
+
+MARKET_SUMMARY_PROMPT = """Based on the following market data, provide a brief analysis:
+
+**Market State:** {regime}
+**VIX Level:** {vix:.1f}
+**SPY Position:** {spy_price:.2f} ({spy_change:+.1%} from MA50)
+
+**Sector Performance (3-month):**
+{sector_performance}
+
+**Key Observations:**
+- Market regime is {regime}
+- VIX indicates {volatility_level}
+- Top performing sector: {top_sector}
+- Weakest sector: {weak_sector}
+
+Please provide:
+1. A 2-3 sentence market overview
+2. Key risk factors to watch
+3. Potential opportunities (without specific stock recommendations)
+
+Remember: This is for educational purposes only. Not financial advice."""
+
+STOCK_ANALYSIS_PROMPT = """Analyze the following stock metrics:
+
+**Ticker:** {ticker}
+**Current Price:** ${price:.2f}
+
+**Performance:**
+- 5-day: {return_5d:+.1%}
+- 20-day: {return_20d:+.1%}
+- YTD: {return_ytd:+.1%}
+
+**Risk Metrics:**
+- Annualized Volatility: {volatility:.1%}
+- Max Drawdown: {max_dd:.1%}
+- Sharpe Ratio: {sharpe:.2f}
+- Beta (vs SPY): {beta:.2f}
+
+**Technical Indicators:**
+- RSI (14): {rsi:.1f}
+- MACD: {macd:.2f}
+- Above MA50: {above_ma50}
+- Above MA200: {above_ma200}
+
+Provide a brief, objective analysis in 3-4 sentences. 
+Include the key strength and key risk.
+Do NOT give buy/sell recommendations."""
+```
+
+#### 4. `agents/market_summarizer.py`
+
+```python
+"""
+市场摘要生成
+"""
+from typing import Dict
+from agents.llm_client import LLMClient
+from agents.prompts import MARKET_SUMMARY_SYSTEM, MARKET_SUMMARY_PROMPT
+
+
+class MarketSummarizer:
+    """生成市场分析摘要"""
+    
+    def __init__(self, llm_client: LLMClient = None):
+        self.llm = llm_client or LLMClient()
+    
+    def summarize_market(self, market_data: Dict) -> str:
+        """生成市场摘要"""
+        prompt = MARKET_SUMMARY_PROMPT.format(**market_data)
+        return self.llm.generate(prompt, MARKET_SUMMARY_SYSTEM)
+    
+    def analyze_stock(self, stock_data: Dict) -> str:
+        """生成个股分析"""
+        from agents.prompts import STOCK_ANALYSIS_PROMPT
+        prompt = STOCK_ANALYSIS_PROMPT.format(**stock_data)
+        return self.llm.generate(prompt, MARKET_SUMMARY_SYSTEM)
+```
+
+#### 5. 更新 `pages/1_Market_Overview.py` 和 `pages/2_Stock_Detail.py`
+
+添加 AI Summary 部分：
+
+```python
+# AI Summary
+st.subheader("🤖 AI Analysis")
+
+if st.button("Generate AI Summary"):
+    with st.spinner("Analyzing..."):
+        from agents.market_summarizer import MarketSummarizer
+        
+        summarizer = MarketSummarizer()
+        summary = summarizer.summarize_market({
+            'regime': regime['regime'],
+            'vix': regime['vix_level'],
+            'spy_price': spy_df['Close'].iloc[-1],
+            'spy_change': (spy_df['Close'].iloc[-1] / spy_df['Close'].rolling(50).mean().iloc[-1]) - 1,
+            'sector_performance': sector_df.to_string(),
+            'top_sector': sector_df.iloc[0]['Name'],
+            'weak_sector': sector_df.iloc[-1]['Name'],
+            'volatility_level': 'high volatility' if regime['vix_level'] > 25 else 'normal volatility',
+        })
+        
+        st.markdown(summary)
+        st.caption("⚠️ This is AI-generated analysis for educational purposes only. Not financial advice.")
+```
+
+#### 完成标准
+
+- [ ] `agents/` 目录创建
+- [ ] LLM 客户端实现
+- [ ] Prompt 模板定义
+- [ ] 市场摘要生成器
+- [ ] 页面集成 AI Summary
+- [ ] 添加适当的免责声明
+
+---
+
+## Phase 11 — Productization
+
+**目标：** 改进代码质量和用户体验
+
+### 任务
+
+#### 1. 添加日志系统
+
+创建 `utils/logger.py`:
+
+```python
+import logging
+import sys
+
+def setup_logger(name: str, level: str = "INFO") -> logging.Logger:
+    logger = logging.getLogger(name)
+    logger.setLevel(getattr(logging, level))
+    
+    handler = logging.StreamHandler(sys.stdout)
+    handler.setFormatter(logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    ))
+    logger.addHandler(handler)
+    
+    return logger
+```
+
+#### 2. 添加错误处理
+
+- 在数据加载处添加 try-except
+- 显示用户友好的错误消息
+- 添加 loading spinner
+
+#### 3. 改进配置
+
+创建 `config/config.yaml`:
+
+```yaml
+data:
+  cache_dir: "data/cache"
+  cache_max_age_hours: 24
+  default_period: "2y"
+
+risk:
+  risk_free_rate: 0.05
+
+llm:
+  provider: "openai"
+  model: "gpt-4o-mini"
+
+ui:
+  theme: "light"
+  default_tickers:
+    - SPY
+    - QQQ
+    - DIA
+```
+
+#### 4. 添加文档
+
+- 更新 README.md
+- 添加 API 文档注释
+- 创建用户指南
+
+#### 5. 添加更多测试
+
+- 集成测试
+- UI 测试 (可选)
+
+#### 完成标准
+
+- [ ] 日志系统实现
+- [ ] 错误处理完善
+- [ ] 配置文件支持
+- [ ] 文档更新
+- [ ] 测试覆盖率 > 80%
+
+---
+
+## Phase 12 — Future Features (Optional)
+
+**目标：** 高级功能和扩展
+
+### 可选功能
+
+#### 1. Paper Trading
+
+- 模拟交易账户
+- 买卖操作记录
+- 组合跟踪
+
+#### 2. Alert System
+
+- 价格预警
+- 技术指标预警
+- Email/Discord 通知
+
+#### 3. Multi-Agent System
+
+参考 `reference-repos/TradingAgents/` 实现：
+
+```
+agents/
+├── analysts/
+│   ├── fundamentals_analyst.py
+│   ├── sentiment_analyst.py
+│   ├── technical_analyst.py
+├── researchers/
+│   ├── bull_researcher.py
+│   ├── bear_researcher.py
+├── trader.py
+├── risk_manager.py
+└── portfolio_manager.py
+```
+
+#### 4. Data Export
+
+- 导出分析报告 (PDF)
+- 导出数据 (CSV/Excel)
+
+#### 完成标准
+
+- [ ] 至少实现 1 个可选功能
+- [ ] 测试通过
+- [ ] 文档更新
+
+---
+
+## 执行顺序
+
+```
+Phase 6  → Stock Detail Enhancement
+Phase 7  → Watchlist System
+Phase 8  → Backtesting
+Phase 9  → Prediction System
+Phase 10 → AI Summary System
+Phase 11 → Productization
+Phase 12 → Future Features (Optional)
+```
+
+每完成一个 Phase：
+1. 运行 `pytest` 确保测试通过
+2. 运行 `streamlit run app.py` 验证功能
+3. 更新 WORKLOG.md 记录完成状态
+4. 提交代码（如果无法推送，告知 Claude）
+
+---
+
 ## Session: 2026-06-14 00:36 PDT
 
 ### Agent: Codex
