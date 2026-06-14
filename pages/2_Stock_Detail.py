@@ -7,9 +7,15 @@ import streamlit as st
 
 from config.settings import DEFAULT_PERIOD, RISK_FREE_RATE
 from features.indicators import add_all_indicators
-from features.risk_metrics import calculate_all_risk_metrics
+from features.risk_metrics import calculate_all_risk_metrics, calculate_returns
 from utils.chart_builder import ChartBuilder
 from utils.data_loader import DataLoader
+from utils.export import dataframe_to_csv
+from utils.relative_performance import (
+    calculate_information_ratio,
+    calculate_relative_performance,
+    calculate_tracking_error,
+)
 
 
 def format_metric(value: float, suffix: str = "", decimals: int = 2) -> str:
@@ -58,6 +64,12 @@ if ticker:
         ]
         available_cols = [col for col in indicator_cols if col in df.columns]
         st.dataframe(df[available_cols].tail(20), use_container_width=True)
+        st.download_button(
+            "Download Price And Indicator CSV",
+            dataframe_to_csv(df),
+            file_name=f"{ticker.lower()}_{period}_analysis.csv",
+            mime="text/csv",
+        )
 
         st.subheader("Risk Metrics")
         with st.spinner("Calculating risk metrics..."):
@@ -109,5 +121,74 @@ if ticker:
                 "Maximum drawdown period: "
                 f"{metrics['max_dd_start'].date()} to {metrics['max_dd_end'].date()}"
             )
+
+        st.subheader("Relative Performance vs SPY")
+        relative = calculate_relative_performance(
+            df[price_column],
+            benchmark[benchmark_column],
+        )
+        relative_columns = st.columns(4)
+        for column, label, key in zip(
+            relative_columns,
+            ["5-Day", "20-Day", "60-Day", "YTD"],
+            ["5d", "20d", "60d", "ytd"],
+        ):
+            column.metric(
+                f"{label} Return",
+                format_metric(relative[f"stock_{key}"] * 100, "%", 1),
+                delta=(
+                    f"Alpha {format_metric(relative[f'alpha_{key}'] * 100, '%', 1)}"
+                ),
+            )
+
+        stock_returns = calculate_returns(df[price_column])
+        benchmark_returns = calculate_returns(benchmark[benchmark_column])
+        info_ratio = calculate_information_ratio(stock_returns, benchmark_returns)
+        tracking_error = calculate_tracking_error(stock_returns, benchmark_returns)
+        relative_col1, relative_col2 = st.columns(2)
+        relative_col1.metric("Information Ratio", format_metric(info_ratio))
+        relative_col2.metric(
+            "Tracking Error",
+            format_metric(tracking_error * 100, "%", 1),
+        )
+
+        st.subheader("AI Analysis")
+        if st.button("Generate Stock Summary"):
+            try:
+                with st.spinner("Generating educational stock summary..."):
+                    from agents.market_summarizer import MarketSummarizer
+
+                    summary = MarketSummarizer().analyze_stock(
+                        {
+                            "ticker": ticker,
+                            "price": float(latest["Close"]),
+                            "return_5d": relative["stock_5d"],
+                            "return_20d": relative["stock_20d"],
+                            "return_ytd": relative["stock_ytd"],
+                            "volatility": metrics["ann_volatility"],
+                            "max_dd": metrics["max_drawdown"],
+                            "sharpe": metrics["sharpe_ratio"],
+                            "beta": (
+                                metrics["beta"]
+                                if metrics["beta"] is not None
+                                else float("nan")
+                            ),
+                            "rsi": float(latest["RSI14"]),
+                            "macd": float(latest["MACD"]),
+                            "above_ma50": bool(
+                                latest["Close"] > latest["MA50"]
+                            ),
+                            "above_ma200": bool(
+                                latest["Close"] > latest["MA200"]
+                            ),
+                        }
+                    )
+                st.markdown(summary)
+                st.caption(
+                    "AI-generated analysis for educational purposes only. "
+                    "Not financial advice."
+                )
+            except Exception as exc:
+                st.error(f"AI summary unavailable: {exc}")
     except Exception as exc:
         st.error(f"Unable to load {ticker}: {exc}")

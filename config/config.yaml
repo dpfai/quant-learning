@@ -1,0 +1,18 @@
+data:
+  cache_dir: "data/cache"
+  cache_max_age_hours: 24
+  default_period: "2y"
+
+risk:
+  risk_free_rate: 0.05
+
+llm:
+  provider: "openai"
+  model: "gpt-4o-mini"
+
+ui:
+  theme: "light"
+  default_tickers:
+    - SPY
+    - QQQ
+    - DIA

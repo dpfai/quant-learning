@@ -1,12 +1,14 @@
 """
 Market overview page.
 """
+import pandas as pd
 import plotly.express as px
 import streamlit as st
 
 from config.settings import DEFAULT_PERIOD, DEFAULT_TICKERS
 from utils.chart_builder import ChartBuilder
 from utils.data_loader import DataLoader
+from utils.export import dataframe_to_csv
 from utils.market_regime import get_market_regime, get_sector_performance
 
 
@@ -17,6 +19,9 @@ period = st.selectbox("History", ["6mo", "1y", "2y", "5y"], index=2)
 
 loader = DataLoader()
 data = {}
+regime = None
+sector_df = pd.DataFrame()
+spy_df = None
 
 if tickers:
     with st.spinner("Loading market data..."):
@@ -42,7 +47,14 @@ if data:
                 "Last Date": df.index[-1].date(),
             }
         )
-    st.dataframe(rows, use_container_width=True, hide_index=True)
+    latest_prices = pd.DataFrame(rows)
+    st.dataframe(latest_prices, use_container_width=True, hide_index=True)
+    st.download_button(
+        "Download Latest Prices CSV",
+        dataframe_to_csv(latest_prices, include_index=False),
+        file_name="market_overview_prices.csv",
+        mime="text/csv",
+    )
 else:
     st.info("Select at least one ticker to view market data.")
 
@@ -123,3 +135,38 @@ try:
         st.dataframe(sector_table, use_container_width=True, hide_index=True)
 except Exception as exc:
     st.warning(f"Sector performance unavailable: {exc}")
+
+if regime is not None and spy_df is not None and not sector_df.empty:
+    st.subheader("AI Analysis")
+    if st.button("Generate Market Summary"):
+        try:
+            with st.spinner("Generating educational market summary..."):
+                from agents.market_summarizer import MarketSummarizer
+
+                spy_prices = spy_df[
+                    "Adj Close" if "Adj Close" in spy_df.columns else "Close"
+                ].dropna()
+                spy_ma50 = float(spy_prices.tail(50).mean())
+                summary = MarketSummarizer().summarize_market(
+                    {
+                        "regime": regime["regime"],
+                        "vix": regime["vix_level"],
+                        "spy_price": float(spy_prices.iloc[-1]),
+                        "spy_change": float(spy_prices.iloc[-1] / spy_ma50 - 1),
+                        "sector_performance": sector_df[
+                            ["Name", "Return"]
+                        ].to_string(index=False),
+                        "top_sector": sector_df.iloc[0]["Name"],
+                        "weak_sector": sector_df.iloc[-1]["Name"],
+                        "volatility_level": (
+                            "high" if regime["vix_level"] > 25 else "normal"
+                        ),
+                    }
+                )
+            st.markdown(summary)
+            st.caption(
+                "AI-generated analysis for educational purposes only. "
+                "Not financial advice."
+            )
+        except Exception as exc:
+            st.error(f"AI summary unavailable: {exc}")

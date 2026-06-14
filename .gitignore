@@ -2,9 +2,12 @@
 __pycache__/
 *.py[cod]
 .pytest_cache/
+.coverage
 .venv/
 venv/
 data/cache/*.parquet
+data/watchlists.json
+data/experiments.jsonl
 
 # Reference repositories (keep docs, ignore cloned repos)
 reference-repos/TradingAgents/

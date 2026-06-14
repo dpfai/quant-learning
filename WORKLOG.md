@@ -1,5 +1,48 @@
 # WORKLOG
 
+## Session: 2026-06-14 00:53 PDT
+
+### Agent: Codex
+
+**完成：**
+- 完成 Phase 6：实现多时间框架相对收益、Alpha、tracking error、information ratio，并集成 Stock Detail。
+- 完成 Phase 7：实现 JSON watchlist 管理、添加/删除 ticker、watchlist 创建/删除、排名表、风险收益散点图和 CSV 下载。
+- 完成 Phase 8：实现 MA crossover、RSI mean reversion、Bollinger Band 策略和避免 same-bar look-ahead 的成本感知回测引擎。
+- 完成 Phase 9：实现 trailing feature engineering、forward target、时间顺序 train/test split、三种分类模型、walk-forward validation、feature importance 和实验日志。
+- 完成 Phase 10：实现可选 OpenAI Responses API 客户端、市场/个股 prompt、摘要生成器和页面 AI Summary；无 API key 时不影响其他功能。
+- 完成 Phase 11：实现 YAML 配置、幂等 logger、用户友好错误处理、依赖声明、README 和 USER_GUIDE。
+- 完成 Phase 12：选择并实现 CSV data export，可导出市场快照、个股指标、watchlist metrics 和 backtest trades。
+- 更新 `.gitignore`，忽略本地 watchlist 和 experiment 数据。
+
+**文件变更：**
+- 新增 `utils/relative_performance.py`、`utils/watchlist_manager.py`、`utils/logger.py`、`utils/export.py`
+- 新增 `backtest/`、`ml/`、`agents/`
+- 新增 `config/config.yaml`、`config/loader.py`
+- 新增 `pages/3_Watchlist.py`、`pages/4_Backtest.py`、`pages/5_Prediction.py`
+- 更新 `pages/1_Market_Overview.py`、`pages/2_Stock_Detail.py`
+- 新增 5 个测试文件
+- 更新 `requirements.txt`、`.gitignore`、`README.md`
+- 新增 `USER_GUIDE.md`
+- 更新 `WORKLOG.md`
+
+**验证：**
+- Phase 6-8 focused tests — 11 passed。
+- Phase 9 focused tests — 4 passed。
+- `venv/bin/python -m pytest -q` — 44 passed。
+- coverage test — 44 passed，TOTAL 81%。
+- 所有新增/更新 Python 文件 `py_compile` — 通过。
+- `venv/bin/streamlit run app.py --server.headless true --server.port 8501` — 启动成功。
+- `curl -I http://localhost:8501` — HTTP 200 OK。
+- `git diff --check` — 通过。
+
+**阻塞或注意事项：**
+- 无功能阻塞。
+- AI Summary 需要用户设置 `OPENAI_API_KEY`；本次使用 mock client 测试 Responses API 集成，未发送真实 API 请求。
+- ML 输出和回测结果仅用于学习研究，不是预测保证或投资建议。
+
+**下一步：**
+- 审阅并提交 Phase 6-12 变更；后续优先增加页面级 Streamlit 测试和更严格的模型校准/回测方法。
+
 ## Session: 2026-06-14 02:00 PDT
 
 ### Agent: Claude
@@ -114,9 +157,9 @@ with col2:
 
 #### 完成标准
 
-- [ ] `utils/relative_performance.py` 创建
-- [ ] `pages/2_Stock_Detail.py` 添加相对表现面板
-- [ ] 测试通过
+- [x] `utils/relative_performance.py` 创建
+- [x] `pages/2_Stock_Detail.py` 添加相对表现面板
+- [x] 测试通过
 
 ---
 
@@ -264,12 +307,12 @@ st.plotly_chart(fig, use_container_width=True)
 
 #### 完成标准
 
-- [ ] `utils/watchlist_manager.py` 创建
-- [ ] `pages/3_Watchlist.py` 创建
-- [ ] 支持添加/删除股票
-- [ ] 显示多时间框架收益
-- [ ] 风险收益散点图
-- [ ] 测试通过
+- [x] `utils/watchlist_manager.py` 创建
+- [x] `pages/3_Watchlist.py` 创建
+- [x] 支持添加/删除股票
+- [x] 显示多时间框架收益
+- [x] 风险收益散点图
+- [x] 测试通过
 
 ---
 
@@ -490,11 +533,11 @@ st.plotly_chart(fig, use_container_width=True)
 
 #### 完成标准
 
-- [ ] `backtest/` 目录创建
-- [ ] 3个策略实现
-- [ ] 回测引擎实现（考虑交易成本、避免 look-ahead bias）
-- [ ] `pages/4_Backtest.py` 创建
-- [ ] 测试通过
+- [x] `backtest/` 目录创建
+- [x] 3个策略实现
+- [x] 回测引擎实现（考虑交易成本、避免 look-ahead bias）
+- [x] `pages/4_Backtest.py` 创建
+- [x] 测试通过
 
 ---
 
@@ -760,11 +803,11 @@ else:
 
 #### 完成标准
 
-- [ ] `ml/` 目录创建
-- [ ] 特征工程实现（防止数据泄露）
-- [ ] 模型训练和评估
-- [ ] `pages/5_Prediction.py` 创建
-- [ ] 测试通过
+- [x] `ml/` 目录创建
+- [x] 特征工程实现（防止数据泄露）
+- [x] 模型训练和评估
+- [x] `pages/5_Prediction.py` 创建
+- [x] 测试通过
 
 ---
 
@@ -945,12 +988,12 @@ if st.button("Generate AI Summary"):
 
 #### 完成标准
 
-- [ ] `agents/` 目录创建
-- [ ] LLM 客户端实现
-- [ ] Prompt 模板定义
-- [ ] 市场摘要生成器
-- [ ] 页面集成 AI Summary
-- [ ] 添加适当的免责声明
+- [x] `agents/` 目录创建
+- [x] LLM 客户端实现
+- [x] Prompt 模板定义
+- [x] 市场摘要生成器
+- [x] 页面集成 AI Summary
+- [x] 添加适当的免责声明
 
 ---
 
@@ -1025,11 +1068,11 @@ ui:
 
 #### 完成标准
 
-- [ ] 日志系统实现
-- [ ] 错误处理完善
-- [ ] 配置文件支持
-- [ ] 文档更新
-- [ ] 测试覆盖率 > 80%
+- [x] 日志系统实现
+- [x] 错误处理完善
+- [x] 配置文件支持
+- [x] 文档更新
+- [x] 测试覆盖率 > 80%
 
 ---
 
@@ -1076,9 +1119,9 @@ agents/
 
 #### 完成标准
 
-- [ ] 至少实现 1 个可选功能
-- [ ] 测试通过
-- [ ] 文档更新
+- [x] 至少实现 1 个可选功能
+- [x] 测试通过
+- [x] 文档更新
 
 ---
 
@@ -2661,8 +2704,8 @@ pages/5_Prediction.py   # 预测页面
 
 - [x] Phase 0 — 项目初始化
 - [x] Phase 1-3 — 数据层 + 可视化 + 技术指标
-- [ ] Phase 4-5 — 风险分析 + 市场概览
-- [ ] Phase 6-7 — 股票详情 + Watchlist
-- [ ] Phase 8-9 — 回测 + 预测
+- [x] Phase 4-5 — 风险分析 + 市场概览
+- [x] Phase 6-7 — 股票详情 + Watchlist
+- [x] Phase 8-9 — 回测 + 预测
 
 **下一步：** Codex 执行 Phase 4-5 开发。

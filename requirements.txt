@@ -5,3 +5,7 @@ plotly>=5.18.0
 yfinance>=0.2.0
 pyarrow>=14.0.0
 pytest>=8.0.0
+pytest-cov>=5.0.0
+scikit-learn>=1.4.0
+openai>=1.0.0
+PyYAML>=6.0.0
