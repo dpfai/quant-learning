@@ -79,6 +79,114 @@ class FinancialMetrics(BaseModel):
 
 ---
 
+### 4. Multi-Agent System Design (Detailed)
+
+#### TradingAgents Agent Structure
+
+```
+tradingagents/agents/
+├── analysts/
+│   ├── fundamentals_analyst.py   # Company financials, performance metrics
+│   ├── sentiment_analyst.py      # News, StockTwits, Reddit sentiment
+│   ├── news_analyst.py           # Global news, macro indicators
+│   └── technical_analyst.py      # MACD, RSI, technical patterns
+├── researchers/
+│   ├── researcher_bull.py        # Bullish argument construction
+│   └── researcher_bear.py        # Bearish argument construction
+├── trader/
+│   └── trader.py                 # Trade decision making
+├── risk_mgmt/
+│   ├── risk_manager.py           # Risk evaluation
+│   └── ...
+├── managers/
+│   └── portfolio_manager.py      # Final approval
+└── schemas.py                    # Agent data schemas
+```
+
+#### ai-hedge-fund Agent Structure (19 Agents)
+
+**Investor Persona Agents:**
+| Agent | Investment Style |
+|-------|-----------------|
+| `warren_buffett.py` | Value investing, wonderful companies at fair price |
+| `charlie_munger.py` | Wonderful businesses, mental models |
+| `ben_graham.py` | Deep value, margin of safety |
+| `peter_lynch.py` | Growth at reasonable price, "ten-baggers" |
+| `phil_fisher.py` | Growth investing, scuttlebutt research |
+| `cathie_wood.py` | Innovation, disruption, growth |
+| `bill_ackman.py` | Activist investing, concentrated positions |
+| `michael_burry.py` | Deep value, contrarian, special situations |
+| `nassim_taleb.py` | Tail risk, antifragility, black swans |
+| `stanley_druckenmiller.py` | Macro, asymmetric opportunities |
+| `aswath_damodaran.py` | Valuation-focused, story + numbers |
+| `mohnish_pabrai.py` | Dhandho investor, low-risk doubles |
+| `rakesh_jhunjhunwala.py` | Growth investing, India-focused |
+
+**Functional Agents:**
+| Agent | Purpose |
+|-------|---------|
+| `fundamentals.py` | Financial statement analysis |
+| `valuation.py` | Intrinsic value calculation |
+| `sentiment.py` | Market sentiment analysis |
+| `news_sentiment.py` | News-based sentiment |
+| `technicals.py` | Technical indicator analysis |
+| `risk_manager.py` | Risk metrics, position limits |
+| `portfolio_manager.py` | Final trading decisions |
+| `growth_agent.py` | Growth analysis |
+
+#### Graph Orchestration (TradingAgents)
+
+```
+tradingagents/graph/
+├── trading_graph.py      # Main graph definition
+├── analyst_execution.py  # Parallel analyst execution
+├── signal_processing.py  # Signal aggregation
+├── propagation.py        # Agent propagation logic
+├── reflection.py         # Reflection/feedback loops
+├── conditional_logic.py  # Conditional routing
+└── checkpointer.py       # State persistence
+```
+
+**Workflow:**
+```
+1. Analyst Team (parallel)
+   ↓
+2. Researcher Debate (bull vs bear)
+   ↓
+3. Trader Decision
+   ↓
+4. Risk Management Review
+   ↓
+5. Portfolio Manager Approval
+```
+
+#### Agent Communication Patterns
+
+**Pattern 1: Sequential Pipeline**
+```
+Analyst → Researcher → Trader → Risk → PM
+```
+
+**Pattern 2: Parallel + Aggregation**
+```
+         ┌→ Fundamentals ─┐
+         ├→ Sentiment ────┤
+Data ─→  ├→ News ─────────┼→ Aggregator → Decision
+         ├→ Technical ────┤
+         └→ ... ──────────┘
+```
+
+**Pattern 3: Debate + Consensus**
+```
+Bullish ←── Debates ──→ Bearish
+    │                    │
+    └──→ Consensus ←────┘
+```
+
+**When to use:** Phase 10-12 AI agent implementation
+
+---
+
 ### 4. Feature Engineering Pipeline (Qlib)
 
 **Location:** `reference-repos/qlib/qlib/contrib/data/handler.py`
@@ -95,7 +203,23 @@ class FinancialMetrics(BaseModel):
 
 ---
 
-### 5. Multi-Provider LLM Support (TradingAgents)
+### 6. RD-Agent (Qlib)
+
+**Location:** Separate repo at https://github.com/microsoft/RD-Agent
+
+**Purpose:** LLM-based autonomous evolving agents for quant R&D
+
+**Key Features:**
+- Automated factor mining from data
+- Model optimization
+- Data-centric factor and model joint optimization
+- Reads research papers and generates code
+
+**When to use:** Advanced Phase - automated research
+
+---
+
+### 7. Multi-Provider LLM Support (TradingAgents)
 
 **Location:** `reference-repos/TradingAgents/tradingagents/llm_clients/`
 
@@ -291,16 +415,23 @@ class FinancialMetrics(BaseModel):
 | Implement data provider | `TradingAgents/tradingagents/dataflows/y_finance.py` |
 | Data model validation | `ai-hedge-fund/src/data/models.py` |
 | Build a new agent | `TradingAgents/tradingagents/agents/` |
-| Design agent workflow | `TradingAgents/tradingagents/graph/` |
+| Design agent workflow | `TradingAgents/tradingagents/graph/trading_graph.py` |
+| Agent orchestration | `TradingAgents/tradingagents/graph/analyst_execution.py` |
+| Investor persona agent | `ai-hedge-fund/src/agents/warren_buffett.py` |
+| Risk manager agent | `ai-hedge-fund/src/agents/risk_manager.py` |
+| Portfolio manager agent | `ai-hedge-fund/src/agents/portfolio_manager.py` |
 | Create technical indicators | `Qlib/qlib/contrib/data/handler.py` |
 | Implement sentiment analysis | `FinGPT/fingpt/FinGPT_Sentiment_Analysis_v3/` |
 | Build backtesting | `Qlib/examples/benchmarks/` |
 | Design UI components | `ai-hedge-fund/app/` |
-| LLM integration | `TradingAgents/tradingagents/llm/` |
+| LLM integration | `TradingAgents/tradingagents/llm_clients/` |
 | Risk management | `ai-hedge-fund/src/agents/risk_manager.py` |
 | Fine-tune financial LLM | `FinGPT/fingpt/` |
 | Feature engineering | `Qlib/qlib/contrib/data/handler.py` (Alpha158) |
 | Cache implementation | `ai-hedge-fund/src/data/cache.py` |
+| Agent schemas | `TradingAgents/tradingagents/agents/schemas.py` |
+| Debate mechanism | `TradingAgents/tradingagents/agents/researchers/` |
+| Signal processing | `TradingAgents/tradingagents/graph/signal_processing.py` |
 
 ---
 

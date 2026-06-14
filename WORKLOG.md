@@ -1,5 +1,46 @@
 # WORKLOG
 
+## Session: 2026-06-14 00:36 PDT
+
+### Agent: Codex
+
+**完成：**
+- 完成 Phase 4 — 风险分析模块。
+- 实现日收益率、年化收益、年化波动率、最大回撤、Sharpe、Sortino、Beta、相关矩阵和汇总风险指标。
+- 在 Stock Detail 页面添加 SPY 基准风险面板和最大回撤区间。
+- 完成 Phase 5 — 市场概览增强。
+- 实现基于 VIX、SPY MA50 和 MA200 的透明市场状态判断。
+- 实现 10 个 sector ETF 的三个月收益排名。
+- 添加 VIX Plotly gauge、52 周区间、市场状态面板和板块表现图表。
+- 添加风险指标和市场状态单元测试。
+
+**文件变更：**
+- 更新 `config/settings.py`
+- 新增 `features/risk_metrics.py`
+- 新增 `utils/market_regime.py`
+- 更新 `utils/chart_builder.py`
+- 更新 `pages/1_Market_Overview.py`
+- 更新 `pages/2_Stock_Detail.py`
+- 新增 `tests/test_risk_metrics.py`
+- 新增 `tests/test_market_regime.py`
+- 更新 `WORKLOG.md`
+
+**验证：**
+- `venv/bin/python -m py_compile app.py config/settings.py features/risk_metrics.py utils/market_regime.py utils/chart_builder.py pages/1_Market_Overview.py pages/2_Stock_Detail.py` — 通过。
+- `venv/bin/python -m pytest tests/test_risk_metrics.py tests/test_market_regime.py -q` — 11 passed。
+- `venv/bin/python -m pytest -q` — 24 passed。
+- `venv/bin/streamlit run app.py --server.headless true --server.port 8501` — 启动成功。
+- `curl -I http://localhost:8501` — HTTP 200 OK。
+- `git diff --check` — 通过。
+
+**阻塞或注意事项：**
+- in-app browser 在本次 session 不可用，因此未完成浏览器截图级 UI 检查。
+- `reference-repos/STUDY_GUIDE.md` 存在非本次工作产生的未提交修改，已保留且未改动。
+- Sector performance 依赖 Yahoo Finance 在线数据；单个 ticker 无数据时会跳过。
+
+**下一步：**
+- 审阅并提交 Phase 4-5 变更，然后按 roadmap 继续 Phase 6-7。
+
 ## Session: 2026-06-14 01:30 PDT
 
 ### Agent: Claude
@@ -362,15 +403,15 @@ st.plotly_chart(fig, use_container_width=True)
 
 ### 完成标准
 
-- [ ] `features/risk_metrics.py` 创建并实现所有风险指标
-- [ ] `tests/test_risk_metrics.py` 创建并通过所有测试
-- [ ] `utils/market_regime.py` 创建并实现市场状态判断
-- [ ] `utils/chart_builder.py` 添加 VIX 仪表盘
-- [ ] `pages/2_Stock_Detail.py` 添加风险指标面板
-- [ ] `pages/1_Market_Overview.py` 添加市场状态和板块表现
-- [ ] `config/settings.py` 更新风险相关配置
-- [ ] `pytest` 全部通过
-- [ ] `streamlit run app.py` 正常运行
+- [x] `features/risk_metrics.py` 创建并实现所有风险指标
+- [x] `tests/test_risk_metrics.py` 创建并通过所有测试
+- [x] `utils/market_regime.py` 创建并实现市场状态判断
+- [x] `utils/chart_builder.py` 添加 VIX 仪表盘
+- [x] `pages/2_Stock_Detail.py` 添加风险指标面板
+- [x] `pages/1_Market_Overview.py` 添加市场状态和板块表现
+- [x] `config/settings.py` 更新风险相关配置
+- [x] `pytest` 全部通过
+- [x] `streamlit run app.py` 正常运行
 
 ### 参考文件
 

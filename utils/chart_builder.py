@@ -108,3 +108,33 @@ class ChartBuilder:
                     )
                 )
         return fig
+
+    @staticmethod
+    def create_vix_gauge(vix_value: float) -> go.Figure:
+        """Create a VIX gauge with transparent volatility thresholds."""
+        gauge_max = max(40.0, float(vix_value) * 1.2)
+        fig = go.Figure(
+            go.Indicator(
+                mode="gauge+number",
+                value=float(vix_value),
+                number={"suffix": ""},
+                title={"text": "CBOE Volatility Index"},
+                gauge={
+                    "axis": {"range": [0, gauge_max]},
+                    "bar": {"color": "#333333"},
+                    "steps": [
+                        {"range": [0, 15], "color": "#66bb6a"},
+                        {"range": [15, 20], "color": "#fdd835"},
+                        {"range": [20, 25], "color": "#fb8c00"},
+                        {"range": [25, gauge_max], "color": "#e53935"},
+                    ],
+                    "threshold": {
+                        "line": {"color": "black", "width": 4},
+                        "thickness": 0.75,
+                        "value": float(vix_value),
+                    },
+                },
+            )
+        )
+        fig.update_layout(height=350, margin={"l": 30, "r": 30, "t": 70, "b": 20})
+        return fig
