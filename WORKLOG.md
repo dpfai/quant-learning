@@ -1,5 +1,64 @@
 # WORKLOG
 
+## Active Branch Context: development
+
+### Branch Goal
+
+Build the project from a learning-focused market dashboard into a more practical
+quant trading decision-support tool.
+
+The platform should help users:
+
+- Understand market regime and risk context before forming a trade idea.
+- Analyze individual stocks with trend, momentum, volatility, relative strength,
+  and risk metrics.
+- Compare candidates across watchlists instead of forcing a single ticker.
+- Backtest rule-based setups with realistic costs and no same-bar look-ahead.
+- Use ML experiments as supporting evidence, not as guaranteed predictions.
+- Use AI summaries to explain data, surface risks, and suggest follow-up research.
+- Record trade hypotheses and review outcomes over time.
+
+### Current Development Direction
+
+Prioritize features that make the app closer to a quant trading workflow while
+keeping human-in-the-loop decision making:
+
+- Trading Journal for trade hypotheses, screenshots/metrics snapshots, and review.
+- Signal scoring that combines trend, momentum, volatility, relative strength,
+  risk, backtest evidence, and model evidence.
+- Position sizing helpers based on account risk, stop distance, and volatility.
+- Risk dashboard for portfolio/watchlist exposure, drawdowns, beta, and correlation.
+- Trade setup workflow that converts data into structured bullish/bearish/neutral
+  research cases.
+- Model and strategy comparison tools across tickers, horizons, and market regimes.
+
+### Important Boundaries
+
+- Do not build real-money automatic trading.
+- Do not connect to a broker or place orders unless the user explicitly starts a
+  future broker-integration phase.
+- Avoid presenting AI or ML output as guaranteed buy/sell instructions.
+- Keep the app educational and practical: explain calculations, assumptions, and
+  limitations clearly.
+- Preserve simple, readable code patterns suitable for a learner and a data
+  scientist inspecting the implementation.
+
+### Stable Main Baseline
+
+- `main` is the deployed/stable branch.
+- `development` was created from `main` commit `5676f2b`
+  (`Add learning center and Qianfan LLM defaults`).
+- Development branch initialization commit: `3644226`
+  (`Initialize development branch`).
+
+### Immediate Next Step
+
+Start the quant trading workflow phase on `development`. A strong first feature is
+Trading Journal because it connects research, AI summaries, model evidence,
+backtest results, risk notes, and later review into one repeatable process.
+
+---
+
 ## Session: 2026-06-16 23:40 PDT
 
 ### Agent: Codex
