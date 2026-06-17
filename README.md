@@ -1,10 +1,12 @@
 # Quant Learning Dashboard
 
-An AI-powered market research platform for learning quantitative trading concepts.
+An AI-assisted stock research and trading decision-support platform for learning
+quantitative trading concepts, testing ideas, and understanding the code behind
+the workflow.
 
 ## Features
 
-### 📊 5 Dashboard Pages
+### 📊 6 Dashboard Pages
 
 | Page | Description |
 |------|-------------|
@@ -13,6 +15,7 @@ An AI-powered market research platform for learning quantitative trading concept
 | **Watchlist** | Multi-stock tracking, ranking, risk-return analysis |
 | **Backtesting** | Strategy testing with MA Crossover, RSI, Bollinger Bands |
 | **Prediction** | ML experiments with feature engineering and validation |
+| **Learning Center** | Trading workflow, code map, AI calls, features, models, metrics |
 
 ### 📈 40+ Metrics & Indicators
 
@@ -25,7 +28,15 @@ An AI-powered market research platform for learning quantitative trading concept
 
 - Natural language market summaries
 - Stock analysis explanations
-- Requires OpenAI API key
+- Uses an OpenAI-compatible LLM provider; defaults to Baidu Qianfan Coding with `glm-5`
+
+### 🧠 Learning Center
+
+- Explains how to use the app for trading decision support
+- Maps Streamlit pages to the underlying Python modules
+- Shows how AI summaries are called and configured
+- Explains feature engineering, model comparison, and ML metrics
+- Connects Prediction results with Backtesting and risk management
 
 ### 🔬 Reference Implementations
 
@@ -66,8 +77,12 @@ Open http://localhost:8501 in your browser.
 ### Enable AI Features (Optional)
 
 ```bash
-export OPENAI_API_KEY="your-openai-api-key"
+export BAIDU_API_KEY="your-baidu-qianfan-api-key"
 ```
+
+The API key should stay in your environment or a local `.env` file, never in code.
+You can temporarily switch models with `export LLM_MODEL="deepseek-v3.2"` or
+`export LLM_MODEL="kimi-k2.5"`.
 
 ---
 
@@ -101,7 +116,8 @@ quant-learning/
 │   ├── 2_Stock_Detail.py
 │   ├── 3_Watchlist.py
 │   ├── 4_Backtest.py
-│   └── 5_Prediction.py
+│   ├── 5_Prediction.py
+│   └── 6_Learning_Center.py
 ├── features/                 # Feature engineering
 │   ├── indicators.py        # Technical indicators
 │   └── risk_metrics.py      # Risk calculations
@@ -214,7 +230,7 @@ Time-series split prevents data leakage.
 | **Data** | yfinance, pandas, numpy |
 | **ML** | scikit-learn |
 | **Backtesting** | Custom engine |
-| **AI** | OpenAI API (optional) |
+| **AI** | OpenAI-compatible API (optional; defaults to Baidu Qianfan Coding) |
 
 ---
 

@@ -38,7 +38,46 @@ def test_dataframe_export_returns_csv_bytes():
     assert b"Close" in exported
 
 
-def test_llm_client_uses_responses_api():
+def test_llm_client_uses_chat_completions_api():
+    class FakeMessage:
+        content = "Summary"
+
+    class FakeChoice:
+        message = FakeMessage()
+
+    class FakeResponse:
+        choices = [FakeChoice()]
+
+    class FakeCompletions:
+        def __init__(self):
+            self.request = None
+
+        def create(self, **kwargs):
+            self.request = kwargs
+            return FakeResponse()
+
+    class FakeChat:
+        def __init__(self):
+            self.completions = FakeCompletions()
+
+    class FakeClient:
+        def __init__(self):
+            self.chat = FakeChat()
+
+    fake = FakeClient()
+    client = LLMClient(model="test-model", client=fake)
+
+    result = client.generate("Prompt", "Instructions")
+
+    assert result == "Summary"
+    assert fake.chat.completions.request["model"] == "test-model"
+    assert fake.chat.completions.request["messages"] == [
+        {"role": "system", "content": "Instructions"},
+        {"role": "user", "content": "Prompt"},
+    ]
+
+
+def test_llm_client_can_use_responses_api():
     class FakeResponse:
         output_text = "Summary"
 
@@ -55,7 +94,7 @@ def test_llm_client_uses_responses_api():
             self.responses = FakeResponses()
 
     fake = FakeClient()
-    client = LLMClient(model="test-model", client=fake)
+    client = LLMClient(model="test-model", api_format="responses", client=fake)
 
     result = client.generate("Prompt", "Instructions")
 

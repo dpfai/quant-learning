@@ -1,6 +1,7 @@
 # Quant Learning Dashboard - User Guide
 
-A comprehensive guide to using your AI-powered market research dashboard.
+A comprehensive guide to using your AI-powered market research dashboard for
+stock research, trading decision support, and code/model learning.
 
 ---
 
@@ -53,16 +54,23 @@ The dashboard will open in your browser at `http://localhost:8501`
 To use AI-generated analysis:
 
 ```bash
-export OPENAI_API_KEY="your-openai-api-key"
+export BAIDU_API_KEY="your-baidu-qianfan-api-key"
 ```
 
-You can get an API key from [OpenAI's platform](https://platform.openai.com/).
+The project defaults to Baidu Qianfan Coding with model `glm-5`. Keep your API
+key in an environment variable or local `.env` file so it is not committed to
+GitHub. Optional overrides:
+
+```bash
+export LLM_MODEL="deepseek-v3.2"      # or kimi-k2.5
+export LLM_API_KEY="your-provider-key" # provider-neutral alternative
+```
 
 ---
 
 ## Dashboard Overview
 
-Your dashboard has **5 main pages**, accessible from the sidebar:
+Your dashboard has **6 main pages**, accessible from the sidebar:
 
 | Page | Purpose | Learning Focus |
 |------|---------|---------------|
@@ -71,6 +79,7 @@ Your dashboard has **5 main pages**, accessible from the sidebar:
 | **Watchlist** | Multi-stock tracking | Portfolio construction, comparison |
 | **Backtesting** | Strategy testing | Systematic trading, performance |
 | **Prediction** | ML experiments | Feature engineering, model validation |
+| **Learning Center** | Platform explanation | Trading workflow, code map, AI calls, features, models, metrics |
 
 ---
 
@@ -135,7 +144,49 @@ XLRE - Real Estate
 
 Click "Generate AI Summary" for a natural language market analysis.
 
-**Important:** This requires `OPENAI_API_KEY` to be set.
+**Important:** This requires `BAIDU_API_KEY` or `LLM_API_KEY` to be set.
+
+---
+
+### Home Page: Trading Decision Support Guide
+
+**What you'll learn:** How to use the whole platform as a repeatable research
+process before making an outside-the-app trading decision.
+
+The Home page explains:
+
+- The platform's purpose: research and decision support, not broker execution
+- A recommended workflow from market overview to stock detail, watchlist,
+  backtesting, prediction, and review
+- What each page helps answer as a trading question
+- A checklist for market context, ticker quality, risk, setup, backtest evidence,
+  model evidence, invalidation, and position sizing
+
+Use the Home page when you feel lost and want to know what to do next.
+
+---
+
+### Learning Center
+
+**What you'll learn:** How the app works under the hood.
+
+The Learning Center is for users who want more than stock charts. It explains:
+
+- How to use the platform for trading decision support
+- Which files implement each part of the app
+- How the Baidu Qianfan/OpenAI-compatible AI call works
+- Which features the ML page creates
+- Why models are compared with accuracy, precision, recall, and F1
+- Why backtesting metrics like Sharpe ratio, max drawdown, win rate, and profit
+  factor matter
+- How to run cleaner experiments by changing one variable at a time
+
+Good use cases:
+
+- You are new to trading and need a structured workflow
+- You are a data scientist and want to inspect the model pipeline
+- You want to understand feature importance and metric tradeoffs
+- You want to learn how the Streamlit pages connect to Python modules
 
 ---
 
@@ -822,10 +873,10 @@ rm -rf data/cache/*.parquet
 **AI Summary not working**
 ```bash
 # Set API key
-export OPENAI_API_KEY="your-key"
+export BAIDU_API_KEY="your-key"
 
 # Verify
-echo $OPENAI_API_KEY
+echo $BAIDU_API_KEY
 ```
 
 **Slow data loading**

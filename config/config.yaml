@@ -7,8 +7,13 @@ risk:
   risk_free_rate: 0.05
 
 llm:
-  provider: "openai"
-  model: "gpt-4o-mini"
+  provider: "qianfan"
+  model: "glm-5"
+  base_url: "https://qianfan.baidubce.com/v2/coding"
+  api_format: "chat_completions"
+  fallback_models:
+    - "deepseek-v3.2"
+    - "kimi-k2.5"
 
 ui:
   theme: "light"

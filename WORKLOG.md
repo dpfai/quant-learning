@@ -1,5 +1,107 @@
 # WORKLOG
 
+## Session: 2026-06-16 22:35 PDT
+
+### Agent: Codex
+
+**完成：**
+- 将 `app.py` 首页从简单欢迎页升级为交易决策支持导览页。
+- 首页新增平台定位、推荐使用流程、页面用途表、交易决策 checklist、AI 使用边界说明。
+- 新增 `pages/6_Learning_Center.py`，作为网页内学习中心。
+- Learning Center 新增 7 个 tab：Trading Workflow、Code Map、AI Calls、Features、Models、Metrics、Experiments。
+- 详细说明如何用平台辅助股票交易决策，同时保持不自动下单、不直接给买卖指令的边界。
+- 详细说明代码结构、AI 调用方式、环境变量配置、feature 设计、模型选择、metric 解读、模型比较和实验方法。
+- 更新 README，将项目描述从纯 learning dashboard 扩展为 AI-assisted stock research and trading decision-support platform。
+- 更新 USER_GUIDE，加入 Home Page 和 Learning Center 的使用说明，并将页面数量更新为 6。
+
+**文件变更：**
+- 更新 `app.py`
+- 新增 `pages/6_Learning_Center.py`
+- 更新 `README.md`
+- 更新 `USER_GUIDE.md`
+- 更新 `WORKLOG.md`
+
+**验证：**
+- `venv/bin/python -m py_compile app.py pages/6_Learning_Center.py` — 通过。
+- `venv/bin/python -m pytest tests/test_productization.py -q` — 6 passed。
+- `git diff --check` — 通过。
+- `venv/bin/streamlit run app.py --server.headless true --server.port 8501` — 8501 已被占用。
+- `venv/bin/streamlit run app.py --server.headless true --server.port 8502` — 启动成功。
+- `curl -I http://localhost:8502` — HTTP 200 OK。
+- `venv/bin/python -m pytest -q` — 45 passed。
+- `venv/bin/python -m py_compile app.py pages/1_Market_Overview.py pages/2_Stock_Detail.py pages/3_Watchlist.py pages/4_Backtest.py pages/5_Prediction.py pages/6_Learning_Center.py` — 通过。
+
+**阻塞或注意事项：**
+- In-app Browser 插件返回 `Browser is not available: iab`，因此本次未能做截图级视觉检查；已用 Streamlit 启动、HTTP 200、py_compile 和测试做替代验证。
+- 本次内容仍明确定位为交易决策支持，不连接 broker、不自动执行真钱交易。
+
+**下一步：**
+- 从浏览器手动打开 `http://localhost:8502` 或当前 Streamlit 端口，检查 Home 和 Learning Center 的实际阅读体验；后续可增加 Trading Journal 页面记录交易假设和复盘。
+
+## Session: 2026-06-16 22:21 PDT
+
+### Agent: Codex
+
+**完成：**
+- 按用户请求尝试验证百度千帆 LLM 环境变量是否可被当前 Codex 执行环境读取。
+- 检查 `BAIDU_API_KEY`、`QIANFAN_API_KEY`、`LLM_API_KEY`、`OPENAI_API_KEY` 是否存在，仅输出布尔值，未打印任何 secret。
+- 检查项目根目录 `.env`、`~/.zshrc`、`~/.zprofile` 中是否有相关变量名。
+- 尝试通过 `LLMClient` 发起最小调用，确认当前失败点是 API key 未进入本执行环境。
+
+**文件变更：**
+- 更新 `WORKLOG.md`
+
+**验证：**
+- `venv/bin/python -c "... bool(os.getenv(...)) ..."` — 四个 key 变量均为 False。
+- `zsh -ic 'venv/bin/python -c "... bool(os.getenv(...)) ..."'` — 四个 key 变量均为 False。
+- `test -f .env` — `ENV_FILE_ABSENT`。
+- `~/.zshrc` 检查 — 未发现 `BAIDU_API_KEY`、`QIANFAN_API_KEY`、`LLM_API_KEY` 变量名。
+- `~/.zprofile` 检查 — 文件不存在。
+- `venv/bin/python -c "from agents.llm_client import LLMClient; ..."` — 失败，报错为 `LLM API key is not configured...`。
+
+**阻塞或注意事项：**
+- 当前 Codex shell 看不到用户设置的 API key，因此尚未发送真实百度千帆 API 请求。
+- 如果 key 是在 IDE 的另一个终端临时 `export` 的，它不会自动传递到 Codex 的执行环境。
+
+**下一步：**
+- 将 key 设置到 Codex 可读取的环境中，或创建本地 `.env` 并添加 dotenv 加载支持后，再做真实端到端调用测试。
+
+## Session: 2026-06-16 22:16 PDT
+
+### Agent: Codex
+
+**完成：**
+- 将 AI Summary 默认 LLM provider 从 OpenAI 改为百度千帆 Coding OpenAI-compatible endpoint。
+- 默认模型改为 `glm-5`，并在配置中记录 `deepseek-v3.2`、`kimi-k2.5` 作为备选模型。
+- 将 LLM client 从 OpenAI Responses-only 改为支持 `chat_completions` 和 `responses` 两种 API 格式。
+- 支持通过环境变量覆盖 provider/model/base_url/api format/API key：`LLM_PROVIDER`、`LLM_MODEL`、`LLM_BASE_URL`、`LLM_API_FORMAT`、`LLM_API_KEY`、`BAIDU_API_KEY`、`QIANFAN_API_KEY`、`OPENAI_API_KEY`。
+- 更新 README 和 USER_GUIDE，说明 API key 应放在环境变量或本地 `.env` 中，不应提交到 GitHub。
+- 更新 `.gitignore` 忽略 `.env` 和 `.env.*`。
+- 确认用户提供的真实 API key 未写入仓库文件。
+
+**文件变更：**
+- 更新 `.gitignore`
+- 更新 `config/config.yaml`
+- 更新 `agents/llm_client.py`
+- 更新 `tests/test_productization.py`
+- 更新 `README.md`
+- 更新 `USER_GUIDE.md`
+- 更新 `WORKLOG.md`
+
+**验证：**
+- `venv/bin/python -m pytest tests/test_productization.py -q` — 6 passed。
+- `venv/bin/python -m pytest -q` — 45 passed。
+- `venv/bin/python -m py_compile app.py config/loader.py agents/llm_client.py agents/market_summarizer.py pages/1_Market_Overview.py pages/2_Stock_Detail.py` — 通过。
+- `git diff --check` — 通过。
+- `rg -n "bce-v3|ALTAKSP|dc4e31ffa061af2d1a8c66ab63319b05cab679d9" .` — 无命中。
+
+**阻塞或注意事项：**
+- 未发送真实百度千帆 API 请求；本次验证使用 mock client 和本地测试。
+- 用户已在聊天中贴出真实 API key，建议在百度控制台轮换该 key。
+
+**下一步：**
+- 在本地设置 `BAIDU_API_KEY` 后，从 Streamlit 页面点击 AI Summary 做一次真实端到端验证。
+
 ## Session: 2026-06-14 00:53 PDT
 
 ### Agent: Codex
