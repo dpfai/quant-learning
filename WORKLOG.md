@@ -1,5 +1,30 @@
 # WORKLOG
 
+## Session: 2026-06-16 23:40 PDT
+
+### Agent: Codex
+
+**完成：**
+- 从当前已部署的 `main` 最新提交 `5676f2b` 创建新的 `development` 分支。
+- 将 `development` 推送到 GitHub。
+- 设置本地 `development` 跟踪远端 `origin/development`。
+- 确认后续更接近 quant trading 工具的新功能可以在 `development` 上继续开发。
+
+**文件变更：**
+- 更新 `WORKLOG.md`
+
+**验证：**
+- `git status --short` — 创建分支前工作区干净。
+- `git branch --show-current` — 当前分支为 `development`。
+- `git push -u origin development` — 成功，新建远端分支并设置 upstream。
+
+**阻塞或注意事项：**
+- 普通沙箱内 `git ls-remote` 因 DNS/network 限制失败；提升权限后 `git push` 成功。
+- 普通沙箱内 `git switch -c development` 因 `.git` 写入权限失败；提升权限后创建成功。
+
+**下一步：**
+- 在 `development` 上规划并实现下一阶段更接近 quant trading 工具的功能，例如 Trading Journal、signal scoring、position sizing、risk dashboard 和 trade setup workflow。
+
 ## Session: 2026-06-16 22:35 PDT
 
 ### Agent: Codex
