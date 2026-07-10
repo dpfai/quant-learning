@@ -1,0 +1,23 @@
+{
+  "ETFs": [
+    "SPY",
+    "QQQ",
+    "DIA",
+    "IWM"
+  ],
+  "Sectors": [
+    "XLK",
+    "XLF",
+    "XLV",
+    "XLE",
+    "XLY"
+  ],
+  "Tech Growth": [
+    "AAPL",
+    "MSFT",
+    "GOOGL",
+    "AMZN",
+    "NVDA",
+    "META"
+  ]
+}

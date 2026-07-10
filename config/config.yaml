@@ -1,0 +1,20 @@
+data:
+  cache_dir: "data/cache"
+  cache_max_age_hours: 24
+  default_period: "2y"
+
+risk:
+  risk_free_rate: 0.05
+
+llm:
+  provider: "openai"  
+  model: "gpt-4o-mini"  # any OpenAI-compatible model
+  api_format: "chat_completions"
+  # base_url: set via LLM_BASE_URL env var if using non-OpenAI provider
+
+ui:
+  theme: "light"
+  default_tickers:
+    - SPY
+    - QQQ
+    - DIA
