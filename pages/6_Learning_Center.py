@@ -139,7 +139,7 @@ with ai_tab:
         The app currently defaults to:
 
         - **Provider:** Baidu Qianfan Coding
-        - **Base URL:** `https://api.openai.com/v1 (or your provider equivalent)`
+        - **Base URL:** `https://ark.cn-beijing.volces.com/api/coding/v3`
         - **API format:** OpenAI-compatible chat completions
         - **Default model:** `glm-5.2`
         - **Alternative models:** `deepseek-v3.2`, `kimi-k2.6`
@@ -147,7 +147,7 @@ with ai_tab:
     )
     st.code(
         """
-export LLM_API_KEY="your-api-key"
+export BAIDU_API_KEY="your-key"
 export LLM_MODEL="glm-5.2"
 
 # Optional alternatives

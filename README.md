@@ -28,7 +28,7 @@ the workflow.
 
 - Natural language market summaries
 - Stock analysis explanations
-- Uses any OpenAI-compatible LLM provider
+- Uses an OpenAI-compatible LLM provider; defaults to Baidu Qianfan Coding with `glm-5.2`
 
 ### 🧠 Learning Center
 
@@ -77,11 +77,12 @@ Open http://localhost:8501 in your browser.
 ### Enable AI Features (Optional)
 
 ```bash
-export LLM_API_KEY="your-api-key"
-# Optionally set LLM_PROVIDER, LLM_MODEL, LLM_BASE_URL
+export BAIDU_API_KEY="your-baidu-qianfan-api-key"
 ```
 
 The API key should stay in your environment or a local `.env` file, never in code.
+You can temporarily switch models with `export LLM_MODEL="deepseek-v3.2"` or
+`export LLM_MODEL="kimi-k2.6"`.
 
 ---
 
@@ -109,7 +110,7 @@ quant-learning/
 │   └── config.yaml
 ├── data/                     # Data storage
 │   ├── cache/               # Price data cache
-│   └── watchlists.json      # Default watchlists
+│   └── watchlists.json      # User watchlists
 ├── pages/                    # Streamlit pages
 │   ├── 1_Market_Overview.py
 │   ├── 2_Stock_Detail.py
@@ -137,8 +138,51 @@ quant-learning/
 │   └── market_summarizer.py
 ├── tests/                    # Unit tests
 ├── docs/                     # Documentation
-└── reference-repos/          # Reference repos summary
+│   └── AI_Agents_vs_Traditional_ML.md
+└── reference-repos/          # Reference implementations
 ```
+
+---
+
+## Documentation
+
+| Document | Description |
+|----------|-------------|
+| [USER_GUIDE.md](USER_GUIDE.md) | Complete usage tutorial |
+| [ai_quant_learning_roadmap.md](ai_quant_learning_roadmap.md) | Learning roadmap |
+| [docs/AI_Agents_vs_Traditional_ML.md](docs/AI_Agents_vs_Traditional_ML.md) | AI agents deep dive |
+| [reference-repos/README.md](reference-repos/README.md) | Reference repos summary |
+| [reference-repos/STUDY_GUIDE.md](reference-repos/STUDY_GUIDE.md) | Phase-by-phase references |
+
+---
+
+## Learning Path
+
+### Phase 1-3: Data & Visualization
+- Market data fetching with yfinance
+- Candlestick charts and indicators
+- Moving averages (MA20, MA50, MA200)
+
+### Phase 4-5: Risk Analysis
+- Risk metrics (Sharpe, Sortino, Max DD, Beta)
+- Market regime detection
+- Sector performance analysis
+
+### Phase 6-7: Portfolio Tools
+- Relative performance vs benchmark
+- Watchlist management
+- Multi-stock comparison
+
+### Phase 8-9: Quantitative Analysis
+- Backtesting strategies
+- Transaction costs and slippage
+- ML feature engineering
+- Time-series validation
+
+### Phase 10-12: Advanced Features
+- AI-powered analysis
+- Configuration management
+- Data export
 
 ---
 
@@ -156,7 +200,7 @@ quant-learning/
 ### Backtesting
 
 Strategies implemented:
-1. **MA Crossover**: Trend following (MA20/MA50)
+1. **MA Crossover**: Trend following
 2. **RSI Mean Reversion**: Buy oversold, sell overbought
 3. **Bollinger Band**: Price band breakouts
 
@@ -164,18 +208,17 @@ All strategies use next-bar execution to prevent look-ahead bias.
 
 ### Machine Learning
 
-Features (24 total):
+Features:
 - Price momentum (5d, 10d, 20d, 60d returns)
-- Volatility measures (rolling std)
-- MA distance, high-low ratios, volume changes
-- Technical indicators (RSI, MACD, Bollinger Bands position, ATR)
+- Volatility measures
+- Technical indicators (RSI, MACD, BB)
 
 Models:
-- Random Forest (default)
+- Random Forest
 - Logistic Regression
 - Gradient Boosting
 
-Time-series walk-forward validation prevents data leakage.
+Time-series split prevents data leakage.
 
 ---
 
@@ -187,7 +230,7 @@ Time-series walk-forward validation prevents data leakage.
 | **Data** | yfinance, pandas, numpy |
 | **ML** | scikit-learn |
 | **Backtesting** | Custom engine |
-| **AI** | OpenAI-compatible API (optional) |
+| **AI** | OpenAI-compatible API (optional; defaults to Baidu Qianfan Coding) |
 
 ---
 
@@ -200,6 +243,17 @@ Time-series walk-forward validation prevents data leakage.
 - NOT a guarantee of any returns
 - Backtests are not indicative of future performance
 - Always do your own research
+
+---
+
+## Credits
+
+Built with reference to:
+- [TradingAgents](https://github.com/TauricResearch/TradingAgents)
+- [ai-hedge-fund](https://github.com/virattt/ai-hedge-fund)
+- [FinGPT](https://github.com/AI4Finance-Foundation/FinGPT)
+- [Qlib](https://github.com/microsoft/qlib)
+- [OpenBB](https://github.com/OpenBB-finance/OpenBB)
 
 ---
 

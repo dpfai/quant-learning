@@ -7,10 +7,13 @@ risk:
   risk_free_rate: 0.05
 
 llm:
-  provider: "openai"  
-  model: "gpt-4o-mini"  # any OpenAI-compatible model
+  provider: "qianfan"
+  model: "glm-5.2"
+  base_url: "https://ark.cn-beijing.volces.com/api/coding/v3"
   api_format: "chat_completions"
-  # base_url: set via LLM_BASE_URL env var if using non-OpenAI provider
+  fallback_models:
+    - "deepseek-v4-pro"
+    - "kimi-k2.6"
 
 ui:
   theme: "light"

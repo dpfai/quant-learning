@@ -1,25 +1,30 @@
-# Environment
+.DS_Store
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
 .env
 .env.*
-
-# Python
-__pycache__/
-*.pyc
-*.pyo
-venv/
 .venv/
-
-# Data & cache
-data/cache/
+venv/
+data/cache/*.parquet
+data/watchlists.json
+data/experiments.jsonl
 data/*.db
-*.log
+data/*.log
+app.log
+ssl/
+*.pem
+*.crt
+*.key
 
-# Models (binary, regenerable)
-ml/trained_models/
+# Reference repositories (keep docs, ignore cloned repos)
+reference-repos/TradingAgents/
+reference-repos/ai-hedge-fund/
+reference-repos/FinGPT/
+reference-repos/qlib/
+reference-repos/OpenBB/
 
-# OS
-.DS_Store
-
-# IDE
-.vscode/
-.idea/
+# Ignore PNG images
+*.PNG
+*.png

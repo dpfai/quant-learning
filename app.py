@@ -97,6 +97,21 @@ st.dataframe(
             "Trading Question": "How does the app work under the hood?",
             "Learning Focus": "Code map, AI calls, features, metrics, model comparison",
         },
+        {
+            "Page": "Factor Research",
+            "Trading Question": "Does a cross-sectional signal have stable IC and monotonic returns?",
+            "Learning Focus": "Factor definitions, IC, rank IC, quantile portfolios",
+        },
+        {
+            "Page": "Portfolio Builder",
+            "Trading Question": "How can signals become a diversified constrained portfolio?",
+            "Learning Focus": "Mean-variance optimization, constraints, portfolio risk",
+        },
+        {
+            "Page": "Sector Research",
+            "Trading Question": "Can domain knowledge produce explainable sector signals?",
+            "Learning Focus": "Ad-tech, consumer, and supply-chain factor hypotheses",
+        },
     ],
     use_container_width=True,
     hide_index=True,
@@ -135,3 +150,12 @@ st.info(
     "Open the Learning Center page when you want to understand the code, features, "
     "models, metrics, and AI integration behind the dashboard."
 )
+
+st.subheader("Advanced Research")
+advanced_pages = st.columns(3)
+with advanced_pages[0]:
+    st.page_link("pages/7_Factor_Research.py", label="Factor Research", icon="🧪")
+with advanced_pages[1]:
+    st.page_link("pages/8_Portfolio_Builder.py", label="Portfolio Builder", icon="⚖️")
+with advanced_pages[2]:
+    st.page_link("pages/9_Sector_Research.py", label="Sector Research", icon="🏭")
